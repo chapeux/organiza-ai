@@ -115,7 +115,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
                   className="w-full bg-surface-container-low border-0 rounded-lg py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all duration-200" 
                   id="email" 
                   name="email" 
-                  placeholder="nome@weg.com" 
+                  placeholder="nome@weg.net" 
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -173,7 +173,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
 
           <div className="mt-auto pt-16 pb-4 md:mt-24 text-center">
             <p className="text-[10px] uppercase tracking-widest text-outline font-bold">
-              © 2024 WEG S.A. Todos os direitos reservados.
+              © 2026 Luan Schappo.
             </p>
             <div className="flex justify-center gap-4 mt-4">
               <a className="text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Termos de Uso</a>
