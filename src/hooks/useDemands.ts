@@ -43,6 +43,7 @@ export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
        let query = supabase
         .from('demands_with_email') // Usando a view para ter o email
         .select('*')
+        .eq('user_id', user.id) // Restaura filtro de segurança
         .order('created_at', { ascending: false });
 
       if (typeFilter) {
