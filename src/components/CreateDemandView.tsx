@@ -28,15 +28,23 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: description })
         });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Server error response:', errorText);
+          alert(`Erro no servidor (${res.status}): ${errorText.substring(0, 100)}`);
+          return;
+        }
+
         const data = await res.json();
         if (data.error) {
             alert(data.error);
         } else if (data.result) {
             setDescription(data.result);
         }
-    } catch (err) {
+    } catch (err: any) {
         console.error('Enhance error', err);
-        alert('Ocorreu um erro ao conectar com o serviço de IA.');
+        alert(`Erro de conexão: ${err.message || 'Verifique sua internet ou logs do Vercel.'}`);
     } finally {
         setIsEnhancing(false);
     }
