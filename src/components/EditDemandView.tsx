@@ -29,6 +29,12 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
   }, [demand.id]);
 
   const fetchSteps = async () => {
+    if (!demand.id) {
+      setSteps([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('workflow_steps')

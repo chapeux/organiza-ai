@@ -116,9 +116,9 @@ export default function AppLayout({ session }: { session?: any }) {
         {activeTab === 'gestao' && isGestor && <ManagerDashboardView onViewDemand={handleViewDemand} />}
         {activeTab === 'perfil' && <ProfileView session={session} />}
         {activeTab === 'relatorios' && <ReportsView isGestor={isGestor} />}
-        {activeTab === 'visualizar_demanda' && viewingDemand && <EditDemandView demand={viewingDemand} onBack={() => setActiveTab('gestao')} readOnly />}
+        {activeTab === 'visualizar_demanda' && viewingDemand && <EditDemandView key={viewingDemand.id} demand={viewingDemand} onBack={() => setActiveTab('gestao')} readOnly />}
         {activeTab === 'nova_demanda' && <CreateDemandView onBack={() => setActiveTab('painel')} />}
-        {activeTab === 'editar_demanda' && editingDemand && <EditDemandView demand={editingDemand} onBack={() => setActiveTab('painel')} />}
+        {activeTab === 'editar_demanda' && editingDemand && <EditDemandView key={editingDemand.id} demand={editingDemand} onBack={() => setActiveTab('painel')} />}
 
         {/* FAB */}
         {activeTab === 'painel' && (

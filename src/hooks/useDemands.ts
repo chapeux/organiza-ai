@@ -89,7 +89,8 @@ export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
           creator_email: d.creator_email || 'N/A',
           progress: calculatedProgress,
           has_steps: stepsForDemand.length > 0,
-          currentStep: currentStep ? { label: currentStep.label, estimated_date: '' } : undefined
+          currentStep: currentStep ? { label: currentStep.label, estimated_date: '' } : undefined,
+          workflow_steps: stepsForDemand
         };
       });
 

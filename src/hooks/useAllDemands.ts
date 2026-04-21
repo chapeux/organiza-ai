@@ -58,7 +58,8 @@ export function useAllDemands() {
           deadline: deadlineDisplay,
           progress: calculatedProgress,
           has_steps: stepsForDemand.length > 0,
-          currentStep: currentStep ? { label: currentStep.label, estimated_date: '' } : undefined
+          currentStep: currentStep ? { label: currentStep.label, estimated_date: '' } : undefined,
+          workflow_steps: stepsForDemand
         };
       });
 
