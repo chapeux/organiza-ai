@@ -342,7 +342,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            {steps.length === 0 && !loading && (
+            {steps.length === 0 && !loading && !readOnly && (
               <button 
                 onClick={handleManualComplete}
                 disabled={saving}
@@ -359,6 +359,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
               </button>
             )}
             
+            {!readOnly && (
             <button 
               onClick={() => setShowDeleteConfirm(true)}
               className="px-4 py-2.5 rounded-lg font-headline font-bold text-sm text-error border border-error/30 hover:bg-error/5 transition-all flex items-center gap-2"
@@ -366,7 +367,9 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
               <span className="material-symbols-outlined text-lg">delete</span>
               <span className="hidden sm:inline">Excluir</span>
             </button>
+            )}
 
+            {!readOnly && (
             <motion.button 
               whileTap={{ scale: 0.95 }}
               onClick={handleSave}
@@ -412,6 +415,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 )}
               </AnimatePresence>
             </motion.button>
+            )}
           </div>
         </div>
 
@@ -429,19 +433,23 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
 
             <div className="flex flex-col min-w-[120px]">
               <p className="text-[10px] uppercase font-bold text-on-primary-container tracking-widest mb-0.5 whitespace-nowrap">Recorrência</p>
-              <select 
-                value={recurrence}
-                onChange={(e) => setRecurrence(e.target.value)}
-                className="bg-transparent border-none p-0 text-lg font-black font-headline capitalize focus:ring-0 cursor-pointer text-on-primary appearance-none"
-              >
-                <option value="none" className="text-on-surface bg-surface-container">Nenhuma</option>
-                <option value="semanal" className="text-on-surface bg-surface-container">Semanal</option>
-                <option value="mensal" className="text-on-surface bg-surface-container">Mensal</option>
-                <option value="trimestral" className="text-on-surface bg-surface-container">Trimestral</option>
-              </select>
+              {readOnly ? (
+                <p className="text-lg font-black font-headline capitalize">{recurrence === 'none' ? 'Nenhuma' : recurrence}</p>
+              ) : (
+                <select 
+                  value={recurrence}
+                  onChange={(e) => setRecurrence(e.target.value)}
+                  className="bg-transparent border-none p-0 text-lg font-black font-headline capitalize focus:ring-0 cursor-pointer text-on-primary appearance-none"
+                >
+                  <option value="none" className="text-on-surface bg-surface-container">Nenhuma</option>
+                  <option value="semanal" className="text-on-surface bg-surface-container">Semanal</option>
+                  <option value="mensal" className="text-on-surface bg-surface-container">Mensal</option>
+                  <option value="trimestral" className="text-on-surface bg-surface-container">Trimestral</option>
+                </select>
+              )}
             </div>
 
-            {recurrence !== 'none' && progressPercentage === 100 && (
+            {recurrence !== 'none' && progressPercentage === 100 && !readOnly && (
               <motion.button 
                 initial={{ scale: 1 }}
                 animate={{ scale: [1, 1.03, 1] }}
@@ -487,8 +495,9 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 <input 
                   type="text" 
                   value={title}
+                  readOnly={readOnly}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all" 
+                  className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all outline-none" 
                 />
               </div>
               {demand.type === 'ticket' && (
@@ -497,9 +506,10 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                   <input 
                     type="text" 
                     value={ticketCode}
+                    readOnly={readOnly}
                     onChange={(e) => setTicketCode(e.target.value)}
                     placeholder="Ex: TKT-1234"
-                    className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all" 
+                    className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all outline-none" 
                   />
                 </div>
               )}
@@ -508,9 +518,10 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 <input 
                   type="text" 
                   value={location}
+                  readOnly={readOnly}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Ex: WEG Itajaí"
-                  className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all" 
+                  className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all outline-none" 
                 />
               </div>
               <div>
@@ -561,8 +572,9 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wide">Descrição Técnica</label>
                 <textarea 
                   value={description}
+                  readOnly={readOnly}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm text-on-surface-variant focus:ring-2 focus:ring-primary transition-all resize-none" 
+                  className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm text-on-surface-variant focus:ring-2 focus:ring-primary transition-all resize-none outline-none" 
                   rows={4}
                 ></textarea>
               </div>
@@ -576,6 +588,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 <span className="material-symbols-outlined">format_list_bulleted</span>
                 Workflow & Etapas
               </h3>
+              {!readOnly && (
               <button 
                 onClick={handleAddStep}
                 className="flex items-center gap-2 text-sm font-bold text-primary hover:bg-surface-container-low px-3 py-2 rounded-lg transition-colors w-full sm:w-auto"
@@ -583,6 +596,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 <span className="material-symbols-outlined text-base">add_circle</span>
                 Adicionar Etapa
               </button>
+              )}
             </div>
             
             <div className="space-y-4">
@@ -604,6 +618,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                   }`}
                 >
                   <button 
+                    disabled={readOnly}
                     onClick={() => toggleStepCompletion(step.id, !step.is_completed)}
                     className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-full border-2 transition-colors ${
                       step.is_completed 
@@ -617,6 +632,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                   <input 
                     type="text" 
                     value={step.label}
+                    readOnly={readOnly}
                     onChange={async (e) => {
                       const newLabel = e.target.value;
                       setSteps(steps.map(s => s.id === step.id ? { ...s, label: newLabel } : s));
@@ -643,6 +659,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                         <span className="material-symbols-outlined text-sm">calendar_today</span>
                         <input 
                           type="date"
+                          disabled={readOnly}
                           value={step.estimated_date ? format(new Date(step.estimated_date), 'yyyy-MM-dd') : ''}
                           onChange={async (e) => {
                             const newDate = e.target.value;
@@ -654,6 +671,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                       </>
                     )}
                   </div>
+                   {!readOnly && (
                    <button 
                     onClick={async () => {
                       setSteps(steps.filter(s => s.id !== step.id));
@@ -663,6 +681,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
+                  )}
                 </div>
               ))}
             </div>

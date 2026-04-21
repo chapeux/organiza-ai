@@ -15,6 +15,7 @@ export default function TeamView({ searchQuery, onEditDemand, onViewDemand }: Te
   const [demands, setDemands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [memberOfIds, setMemberOfIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -37,6 +38,7 @@ export default function TeamView({ searchQuery, onEditDemand, onViewDemand }: Te
           teamDemandIds = teamMembers.map(tm => tm.demand_id);
         }
       }
+      setMemberOfIds(teamDemandIds);
 
       let query = supabase
         .from('demands_with_email')
@@ -137,11 +139,11 @@ export default function TeamView({ searchQuery, onEditDemand, onViewDemand }: Te
                     </td>
                     <td className="py-3 px-6 text-center">
                        <button
-                         onClick={() => onEditDemand(demand)}
+                         onClick={() => memberOfIds.includes(demand.id) ? onEditDemand(demand) : onViewDemand(demand)}
                          className="p-2 text-on-surface-variant hover:text-primary transition-colors hover:bg-primary/10 rounded-full"
-                         title="Editar"
+                         title={memberOfIds.includes(demand.id) ? "Editar/Visualizar" : "Apenas Visualizar"}
                        >
-                         <Edit2 size={18} />
+                         {memberOfIds.includes(demand.id) ? <Edit2 size={18} /> : <Eye size={18} />}
                        </button>
                     </td>
                   </tr>
