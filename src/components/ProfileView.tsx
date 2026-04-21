@@ -114,8 +114,8 @@ export default function ProfileView({ session }: { session: any }) {
               <HardHat size={20} />
             </div>
             <div>
-              <h1 className="font-headline font-extrabold text-blue-900 leading-tight">WEG Synergy</h1>
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Painel de Controle</p>
+              <h1 className="font-headline font-extrabold text-primary leading-tight">Arquitetura Industrial</h1>
+              <p className="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Painel de Controle</p>
             </div>
           </div>
           <h2 className="font-headline text-3xl font-extrabold text-primary tracking-tight">Meu Perfil</h2>
@@ -138,7 +138,7 @@ export default function ProfileView({ session }: { session: any }) {
         <section className="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16"></div>
           <div className="relative group shrink-0">
-            <div className="w-32 h-32 rounded-full border-4 border-surface shadow-md bg-primary-container text-on-primary-container flex items-center justify-center text-5xl font-bold uppercase overflow-hidden relative">
+            <div className="w-32 h-32 rounded-full border-4 border-surface-container-low shadow-md bg-primary-container text-on-primary-container flex items-center justify-center text-5xl font-bold uppercase overflow-hidden relative">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
@@ -266,13 +266,13 @@ export default function ProfileView({ session }: { session: any }) {
           <h4 className="font-headline font-bold text-lg text-primary mb-6">Configurações da Conta</h4>
           <div className="space-y-4">
             
-            <div className="flex flex-col gap-2 p-4 bg-surface-container-low rounded-lg transition-colors">
+            <div className="flex flex-col gap-2 p-4 bg-surface-container rounded-lg transition-colors">
               <div 
                 className="flex items-center justify-between cursor-pointer group"
                 onClick={() => setIsEditingName(!isEditingName)}
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0 border border-outline-variant/10">
                     <User size={20} />
                   </div>
                   <div>
@@ -284,25 +284,25 @@ export default function ProfileView({ session }: { session: any }) {
               </div>
               
               {isEditingName && (
-                <div className="mt-3 pt-3 border-t border-outline-variant/20 flex gap-2">
+                <div className="mt-3 pt-3 border-t border-outline-variant/10 flex gap-2">
                   <input 
                     type="text" 
                     value={fullName} 
                     onChange={e => setFullName(e.target.value)} 
-                    className="flex-1 text-sm p-2 bg-surface-container-lowest border border-outline-variant/30 rounded-md focus:ring-1 focus:ring-primary"
+                    className="flex-1 text-sm p-3 bg-surface-container-lowest border border-outline-variant/30 rounded-md focus:ring-1 focus:ring-primary text-on-surface"
                     placeholder="Seu nome completo"
                   />
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col gap-2 p-4 bg-surface-container-low rounded-lg transition-colors">
+            <div className="flex flex-col gap-2 p-4 bg-surface-container rounded-lg transition-colors">
               <div 
                 className="flex items-center justify-between cursor-pointer group"
                 onClick={() => setIsEditingPassword(!isEditingPassword)}
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0 border border-outline-variant/10">
                     <Lock size={20} />
                   </div>
                   <div>
@@ -314,18 +314,18 @@ export default function ProfileView({ session }: { session: any }) {
               </div>
               
               {isEditingPassword && (
-                <div className="mt-3 pt-3 border-t border-outline-variant/20 flex flex-col gap-3">
+                <div className="mt-3 pt-3 border-t border-outline-variant/10 flex flex-col gap-3">
                   <input 
                     type="password" 
                     value={newPassword} 
                     onChange={e => setNewPassword(e.target.value)} 
-                    className="w-full text-sm p-2 bg-surface-container-lowest border border-outline-variant/30 rounded-md focus:ring-1 focus:ring-primary"
+                    className="w-full text-sm p-3 bg-surface-container-lowest border border-outline-variant/30 rounded-md focus:ring-1 focus:ring-primary text-on-surface"
                     placeholder="Nova senha (min. 6 caracteres)"
                   />
                   <button 
                     onClick={handleUpdatePassword}
                     disabled={isSaving}
-                    className="bg-primary text-white py-2 rounded-md text-sm font-bold flex justify-center items-center gap-2"
+                    className="bg-primary text-on-primary py-3 rounded-md text-sm font-bold flex justify-center items-center gap-2 hover:brightness-110 active:scale-95 transition-all"
                   >
                     {isSaving ? <Loader2 size={16} className="animate-spin" /> : 'Atualizar Senha'}
                   </button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import DashboardView from './DashboardView';
@@ -10,13 +10,29 @@ import EditDemandView from './EditDemandView';
 import ProfileView from './ProfileView';
 import ReportsView from './ReportsView';
 import ManagerDashboardView from './ManagerDashboardView';
-import { LayoutDashboard, CheckSquare, Briefcase, Ticket, LineChart, HelpCircle, LogOut, Search, Bell, Settings, Plus, User, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Briefcase, Ticket, LineChart, HelpCircle, LogOut, Search, Moon, Sun, Settings, Plus, User, ShieldCheck } from 'lucide-react';
 
 export default function AppLayout({ session }: { session?: any }) {
   const [viewingDemand, setViewingDemand] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'painel' | 'relatorios' | 'nova_demanda' | 'editar_demanda' | 'perfil' | 'gestao' | 'visualizar_demanda'>('painel');
   const [editingDemand, setEditingDemand] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('weg-theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('weg-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('weg-theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   const handleViewDemand = (demand: any) => {
     setViewingDemand(demand);
@@ -41,10 +57,10 @@ export default function AppLayout({ session }: { session?: any }) {
   return (
     <div className="bg-surface text-on-surface flex min-h-screen">
       {/* SideNavBar */}
-      <aside className="h-screen w-64 fixed left-0 top-0 border-r border-slate-200/50 bg-slate-50 flex flex-col py-6 z-40 hidden md:flex">
+      <aside className="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant/20 bg-surface-container-low flex flex-col py-6 z-40 hidden md:flex">
         <div className="px-6 mb-10 cursor-pointer" onClick={() => setActiveTab('painel')}>
-          <h1 className="font-black text-blue-900 text-xl tracking-tight">WEG Synergy</h1>
-          <p className="text-xs text-slate-500 font-medium truncate" title={userName}>
+          <h1 className="font-black text-primary text-xl tracking-tight">WEG Synergy</h1>
+          <p className="text-xs text-on-surface-variant font-medium truncate" title={userName}>
             {userName}
           </p>
         </div>
@@ -70,33 +86,37 @@ export default function AppLayout({ session }: { session?: any }) {
             />
           )}
         </nav>
-        <div className="mt-auto px-3 space-y-1 pt-6 border-t border-slate-200/50">
+        <div className="mt-auto px-3 space-y-1 pt-6 border-t border-outline-variant/20">
           <NavItem icon={<HelpCircle size={20} />} label="Ajuda" />
-          <NavItem onClick={handleLogout} icon={<LogOut size={20} />} label="Sair" className="text-error" />
+          <NavItem onClick={handleLogout} icon={<LogOut size={20} />} label="Sair" className="!text-error" />
         </div>
       </aside>
 
       {/* Main Content Canvas */}
-      <main className="flex-1 md:ml-64 min-h-screen flex flex-col">
+      <main className="flex-1 md:ml-64 min-h-screen flex flex-col items-stretch w-full max-w-[100vw] overflow-x-hidden">
         {/* TopAppBar */}
-        <header className="w-full top-0 sticky bg-slate-50 flex justify-between items-center px-8 py-4 z-30">
+        <header className="w-full top-0 sticky bg-surface-container-lowest flex justify-between items-center px-4 md:px-8 py-4 z-30 border-b border-outline-variant/10">
           <div className="flex items-center gap-4 flex-1">
-            <div className="relative w-full max-w-md ml-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <div className="relative w-full max-w-md md:ml-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" size={20} />
               <input 
-                className="w-full bg-surface-container-low border-none rounded-xl py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-primary transition-all" 
-                placeholder="Buscar chamados ou IDs..." 
+                className="w-full bg-surface-container-low border border-outline-variant/10 rounded-xl py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline" 
+                placeholder="Buscar chamados..." 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-slate-500 hover:bg-blue-50 rounded-full transition-colors active:scale-95 duration-150">
-              <Bell size={24} />
+          <div className="flex items-center gap-2 md:gap-4 pl-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95 duration-150"
+              title={isDarkMode ? "Mudar para Claro" : "Mudar para Escuro"}
+            >
+              {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
             </button>
-            <button onClick={() => setActiveTab('perfil')} className="p-2 text-slate-500 hover:bg-blue-50 rounded-full transition-colors active:scale-95 duration-150">
+            <button onClick={() => setActiveTab('perfil')} className="p-2 text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95 duration-150">
               <Settings size={24} />
             </button>
             <div 
@@ -150,9 +170,9 @@ function NavItem({ icon, label, active, onClick, className }: any) {
     return (
       <a 
         onClick={onClick}
-        className={cn("bg-blue-50 text-blue-900 font-bold border-r-4 border-blue-700 flex items-center gap-3 px-3 py-2 transition-all duration-200 ease-in-out font-manrope text-sm cursor-pointer", className)}
+        className={cn("bg-primary text-on-primary font-bold border-r-4 border-primary-fixed/50 flex items-center gap-3 px-3 py-2 transition-all duration-200 ease-in-out font-manrope text-sm cursor-pointer shadow-sm", className)}
       >
-        <div className="text-blue-700">{icon}</div>
+        <div className="text-on-primary">{icon}</div>
         {label}
       </a>
     );
@@ -160,9 +180,9 @@ function NavItem({ icon, label, active, onClick, className }: any) {
   return (
     <a 
       onClick={onClick}
-      className={cn("flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 transition-all duration-200 ease-in-out font-manrope text-sm rounded-lg cursor-pointer", className)}
+      className={cn("flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-manrope text-sm rounded-lg cursor-pointer", className)}
     >
-      <div className="text-slate-500">{icon}</div>
+      <div className="text-outline">{icon}</div>
       {label}
     </a>
   );
@@ -170,8 +190,8 @@ function NavItem({ icon, label, active, onClick, className }: any) {
 
 function MobileNavItem({ icon, label, active, onClick }: any) {
   return (
-    <button onClick={onClick} className={cn("flex flex-col items-center", active ? "text-blue-700 font-semibold" : "text-slate-400")}>
-      <div className={active ? "text-blue-700" : "text-slate-400"}>{icon}</div>
+    <button onClick={onClick} className={cn("flex flex-col items-center", active ? "text-primary font-semibold" : "text-outline")}>
+      <div className={active ? "text-primary" : "text-outline"}>{icon}</div>
       <span className="text-[10px] font-manrope mt-1">{label}</span>
     </button>
   );

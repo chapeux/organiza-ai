@@ -36,24 +36,24 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
                 placeholder="Filtrar por tarefa..." 
                 value={filterTitle}
                 onChange={(e) => setFilterTitle(e.target.value)}
-                className="px-4 py-2 bg-white rounded-lg border border-outline-variant text-sm w-full md:w-auto"
+                className="px-4 py-2 bg-surface-container rounded-lg border border-outline-variant/30 text-sm w-full md:w-auto text-on-surface focus:ring-1 focus:ring-primary outline-none"
             />
             <input 
                 type="text" 
                 placeholder="Filtrar por e-mail..." 
                 value={filterEmail}
                 onChange={(e) => setFilterEmail(e.target.value)}
-                className="px-4 py-2 bg-white rounded-lg border border-outline-variant text-sm w-full md:w-auto"
+                className="px-4 py-2 bg-surface-container rounded-lg border border-outline-variant/30 text-sm w-full md:w-auto text-on-surface focus:ring-1 focus:ring-primary outline-none"
             />
             <select 
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 bg-white rounded-lg border border-outline-variant text-sm"
+                className="px-4 py-2 bg-surface-container rounded-lg border border-outline-variant/30 text-sm text-on-surface focus:ring-1 focus:ring-primary outline-none"
             >
-                <option value="todos">Todos Status</option>
-                <option value="aberto">Aberto</option>
-                <option value="em andamento">Em Andamento</option>
-                <option value="concluido">Concluído</option>
+                <option value="todos" className="bg-surface-container-lowest">Todos Status</option>
+                <option value="aberto" className="bg-surface-container-lowest">Aberto</option>
+                <option value="em andamento" className="bg-surface-container-lowest">Em Andamento</option>
+                <option value="concluido" className="bg-surface-container-lowest">Concluído</option>
             </select>
         </div>
       </header>
@@ -81,8 +81,8 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
                 <td className="px-6 py-4 text-on-surface-variant">{demand.deadline}</td>
                 <td className="px-6 py-4 font-medium capitalize">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs ${
-                    demand.status === 'concluido' ? 'bg-emerald-100/50 text-emerald-800' :
-                    demand.status === 'em andamento' ? 'bg-amber-100/50 text-amber-800' : 'bg-rose-100/50 text-rose-800'
+                    demand.status === 'concluido' ? 'bg-primary/20 text-primary' :
+                    demand.status === 'em andamento' ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container/20 text-error'
                   }`}>
                     {demand.status === 'concluido' ? <CheckCircle2 size={12}/> : <Clock size={12} />}
                     {demand.status}

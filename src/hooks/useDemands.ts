@@ -17,6 +17,8 @@ export type Demand = {
   creator_email?: string; // Novo campo
   deadline?: string;     // Novo campo
   location?: string;     // Novo campo Local
+  network_path?: string; // Link ou Caminho de Rede
+  completedDate?: string; // Data de conclusão
 };
 
 export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
@@ -33,7 +35,8 @@ export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
     
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       
       if (!user) {
         setDemands([]);

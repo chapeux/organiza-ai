@@ -21,7 +21,7 @@ export function useAllDemands() {
       const { data: progressData } = await supabase.from('demand_progress').select('*');
       const { data: stepsData } = await supabase
         .from('workflow_steps')
-        .select('demand_id, is_completed, label, estimated_date')
+        .select('demand_id, is_completed, label, estimated_date, completed_at')
         .order('order_index', { ascending: false });
 
       const enriched: Demand[] = (demandsData || []).map(d => {
@@ -29,12 +29,22 @@ export function useAllDemands() {
         const stepsForDemand = (stepsData?.filter((s: any) => s.demand_id === d.id) || []) as any[];
         
         let calculatedProgress = 0;
+        let lastCompletedDate: Date | null = null;
+        
         if (stepsForDemand.length > 0) {
-            const completed = stepsForDemand.filter(s => s.is_completed).length;
-            calculatedProgress = Math.round((completed / stepsForDemand.length) * 100);
+            const completed = stepsForDemand.filter(s => s.is_completed);
+            calculatedProgress = Math.round((completed.length / stepsForDemand.length) * 100);
+            
+            completed.forEach(s => {
+                if (s.completed_at) {
+                    const d = new Date(s.completed_at);
+                    if (!lastCompletedDate || d > lastCompletedDate) lastCompletedDate = d;
+                }
+            });
         } else {
-            if (d.status === 'concluido') {
+            if (d.status === 'concluido' || d.status === 'concluído') {
                 calculatedProgress = 100;
+                lastCompletedDate = d.updated_at ? new Date(d.updated_at) : new Date(); // fallback
             } else {
                 calculatedProgress = prog ? prog.percentage : 0;
             }
@@ -59,7 +69,8 @@ export function useAllDemands() {
           progress: calculatedProgress,
           has_steps: stepsForDemand.length > 0,
           currentStep: currentStep ? { label: currentStep.label, estimated_date: '' } : undefined,
-          workflow_steps: stepsForDemand
+          workflow_steps: stepsForDemand,
+          completedDate: lastCompletedDate ? lastCompletedDate.toISOString() : undefined
         };
       });
 

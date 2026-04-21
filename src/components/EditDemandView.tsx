@@ -5,6 +5,7 @@ import { ptBR } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface EditDemandViewProps {
+  key?: React.Key;
   demand: any;
   onBack: () => void;
   readOnly?: boolean;
@@ -15,6 +16,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
   const [description, setDescription] = useState(demand.description || '');
   const [ticketCode, setTicketCode] = useState(demand.ticket_code || '');
   const [location, setLocation] = useState(demand.location || '');
+  const [networkPath, setNetworkPath] = useState(demand.network_path || '');
   const [recurrence, setRecurrence] = useState(demand.recurrence || 'none');
   const [manualStatus, setManualStatus] = useState(demand.status || 'aberto');
   const [steps, setSteps] = useState<any[]>([]);
@@ -111,6 +113,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
           description,
           ticket_code: demand.type === 'ticket' ? ticketCode : null,
           location: location || null,
+          network_path: networkPath || null,
           deadline: maxStepDate ? maxStepDate.toISOString() : null,
           status: derivedStatus,
           progress: progressPercentage,
@@ -290,7 +293,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
             <div className="flex items-center gap-4 mt-4">
               <span className={`px-3 py-1 rounded-full text-xs font-bold font-label uppercase tracking-wider ${
                 derivedStatus === 'concluido' 
-                  ? 'bg-primary-fixed-dim text-on-primary-fixed-variant' 
+                  ? 'bg-primary/20 text-primary' 
                   : 'bg-secondary-container text-on-secondary-container'
               }`}>
                 {derivedStatus ? derivedStatus.replace('_', ' ') : 'Em Andamento'}
@@ -313,8 +316,8 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 disabled={saving}
                 className={`px-4 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all ${
                   manualStatus === 'concluido' 
-                    ? 'bg-green-100 text-green-700 border border-green-200' 
-                    : 'bg-green-600 text-white hover:bg-green-700 shadow-md'
+                    ? 'bg-primary/10 text-primary border border-primary/20' 
+                    : 'bg-primary text-on-primary hover:opacity-90 shadow-md'
                 }`}
               >
                 <span className="material-symbols-outlined text-lg">
@@ -397,12 +400,12 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
               <select 
                 value={recurrence}
                 onChange={(e) => setRecurrence(e.target.value)}
-                className="bg-transparent border-none p-0 text-lg font-black font-headline capitalize focus:ring-0 cursor-pointer text-white appearance-none"
+                className="bg-transparent border-none p-0 text-lg font-black font-headline capitalize focus:ring-0 cursor-pointer text-on-primary appearance-none"
               >
-                <option value="none" className="text-slate-900 bg-white">Nenhuma</option>
-                <option value="semanal" className="text-slate-900 bg-white">Semanal</option>
-                <option value="mensal" className="text-slate-900 bg-white">Mensal</option>
-                <option value="trimestral" className="text-slate-900 bg-white">Trimestral</option>
+                <option value="none" className="text-on-surface bg-surface-container">Nenhuma</option>
+                <option value="semanal" className="text-on-surface bg-surface-container">Semanal</option>
+                <option value="mensal" className="text-on-surface bg-surface-container">Mensal</option>
+                <option value="trimestral" className="text-on-surface bg-surface-container">Trimestral</option>
               </select>
             </div>
 
@@ -413,7 +416,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                 onClick={handleRenew}
                 disabled={renewing}
-                className="bg-white text-primary px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-slate-100 shadow-xl transition-colors shrink-0 mx-2"
+                className="bg-on-primary text-primary px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 shadow-xl transition-colors shrink-0 mx-2"
               >
                 <span className="material-symbols-outlined animate-spin-slow">restart_alt</span>
                 {renewing ? 'Gerando...' : 'Renovar Ciclo'}
@@ -479,6 +482,19 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 />
               </div>
               <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wide">Link ou Caminho de Rede (Opcional)</label>
+                <div className="relative flex items-center">
+                  <span className="material-symbols-outlined absolute left-4 text-on-surface-variant">link</span>
+                  <input 
+                    type="text" 
+                    value={networkPath}
+                    onChange={(e) => setNetworkPath(e.target.value)}
+                    placeholder="Ex: P:\Engenharia\Projetos\Linha04"
+                    className="w-full px-4 py-3 pl-12 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all outline-none" 
+                  />
+                </div>
+              </div>
+              <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wide">Descrição Técnica</label>
                 <textarea 
                   value={description}
@@ -528,8 +544,8 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                     onClick={() => toggleStepCompletion(step.id, !step.is_completed)}
                     className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-full border-2 transition-colors ${
                       step.is_completed 
-                        ? 'border-primary bg-primary text-white' 
-                        : 'border-outline-variant bg-white hover:border-primary'
+                        ? 'border-primary bg-primary text-on-primary' 
+                        : 'border-outline-variant bg-surface-container hover:border-primary'
                     }`}
                   >
                     {step.is_completed && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
@@ -550,7 +566,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                   />
                   
                   <div className={`flex shrink-0 items-center gap-2 px-3 py-1.5 rounded border transition-colors ${
-                    step.is_completed ? 'bg-primary-fixed-dim border-transparent text-on-primary-fixed-variant' : 'bg-white/80 border-outline-variant/30 text-outline'
+                    step.is_completed ? 'bg-primary/10 border-transparent text-primary' : 'bg-surface-container-high/50 border-outline-variant/30 text-outline'
                   }`}>
                     {step.is_completed ? (
                       <>
@@ -580,7 +596,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                       setSteps(steps.filter(s => s.id !== step.id));
                        await supabase.from('workflow_steps').delete().eq('id', step.id);
                     }}
-                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-auto sm:ml-0"
+                    className="p-1.5 text-outline hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ml-auto sm:ml-0"
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
@@ -608,31 +624,31 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden z-10"
+              className="relative w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-2xl overflow-hidden z-10"
             >
               <div className="p-8">
-                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto">
                   <span className="material-symbols-outlined text-3xl">warning</span>
                 </div>
                 
-                <h3 className="text-2xl font-black font-headline text-center text-primary mb-2 uppercase">Excluir Projeto?</h3>
-                <p className="text-outline text-center font-medium leading-relaxed">
+                <h3 className="text-2xl font-black font-headline text-center text-on-surface mb-2 uppercase">Excluir Projeto?</h3>
+                <p className="text-on-surface-variant text-center font-medium leading-relaxed">
                   Esta ação é irreversível. Todas as etapas do workflow e dados deste projeto serão removidos permanentemente.
                 </p>
               </div>
               
-              <div className="flex border-t border-slate-100">
+              <div className="flex border-t border-outline-variant/10">
                 <button
                   disabled={deleting}
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-4 font-headline font-bold text-sm text-outline hover:bg-slate-50 transition-colors disabled:opacity-50"
+                  className="flex-1 py-4 font-headline font-bold text-sm text-on-surface-variant hover:bg-surface-container-low transition-colors disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   disabled={deleting}
                   onClick={handleDelete}
-                  className="flex-1 py-4 font-headline font-bold text-sm bg-red-600 text-white hover:bg-red-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-4 font-headline font-bold text-sm bg-red-500 text-white hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {deleting ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

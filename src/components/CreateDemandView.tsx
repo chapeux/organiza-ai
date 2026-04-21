@@ -8,6 +8,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
   const [title, setTitle] = useState('');
   const [ticketCode, setTicketCode] = useState('');
   const [location, setLocation] = useState('');
+  const [networkPath, setNetworkPath] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<'baixa' | 'media' | 'alta' | 'critica'>('media');
   const [steps, setSteps] = useState<{ id: number, label: string, date: string }[]>([
@@ -84,6 +85,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
         priority,
         user_id: user?.id,
         location: location || null,
+        network_path: networkPath || null,
       };
       if (type === 'ticket') {
         payload.ticket_code = ticketCode;
@@ -196,6 +198,20 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
               </div>
 
               <div className="space-y-2">
+                <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Link ou Caminho de Rede (Opcional)</label>
+                <div className="relative flex items-center">
+                  <span className="material-symbols-outlined absolute left-4 text-on-surface-variant">link</span>
+                  <input 
+                    className="w-full bg-surface-container-low border-0 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                    placeholder="Ex: P:\Engenharia\Projetos\Linha04 ou https://weg.sharepoint.com/..." 
+                    type="text"
+                    value={networkPath}
+                    onChange={e => setNetworkPath(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Descrição Detalhada</label>
                   <button 
@@ -226,7 +242,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
                     <button 
                       onClick={handleSuggestWorkflow}
                       disabled={!title || isSuggesting}
-                      className="text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                      className="text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     >
                       {isSuggesting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                       GERAR COM IA
@@ -280,7 +296,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
                             </div>
                             <button 
                               onClick={() => setSteps(steps.filter(s => s.id !== step.id))}
-                              className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                              className="text-outline hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -312,7 +328,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
                     onChange={() => setPriority('baixa')} 
                   />
                   <span className="flex-1 text-sm font-medium">Baixa</span>
-                  <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                  <span className="w-2 h-2 rounded-full bg-outline"></span>
                 </label>
 
                 <label className="flex items-center gap-3 p-3 rounded-lg border-0 bg-surface-container-low cursor-pointer hover:bg-surface-variant transition-colors group">
@@ -395,7 +411,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
         </div>
 
         {/* Action Footer */}
-        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 pt-4 pb-12 border-t border-surface-container-high">
+        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 pt-4 pb-12 border-t border-outline-variant/10">
           <button 
             onClick={onBack} 
             disabled={isSaving}
@@ -406,7 +422,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full sm:w-auto px-10 py-3 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 text-white font-bold text-sm shadow-lg shadow-blue-900/10 hover:brightness-110 active:scale-95 transition-all text-center disabled:opacity-50 flex justify-center items-center gap-2"
+            className="w-full sm:w-auto px-10 py-3 rounded-lg bg-primary text-on-primary font-bold text-sm shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all text-center disabled:opacity-50 flex justify-center items-center gap-2"
           >
             {isSaving && <Loader2 size={16} className="animate-spin" />}
             Criar Demanda
