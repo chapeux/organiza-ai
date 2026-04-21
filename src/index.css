@@ -82,9 +82,33 @@
     color: var(--color-on-surface);
   }
   
+  .dark {
+    --color-surface: #111214;
+    --color-background: #111214;
+    --color-surface-container-lowest: #0b0c0d;
+    --color-surface-container-low: #1e1f22;
+    --color-surface-container: #2b2d31;
+    --color-surface-container-high: #35373c;
+    --color-surface-container-highest: #404249;
+    --color-on-surface: #f2f3f5;
+    --color-on-surface-variant: #ced2d9;
+    --color-primary: #a3c9f8;
+    --color-on-primary: #002d5a;
+    --color-primary-container: #004884;
+    --color-on-primary-container: #d6e2ff;
+    --color-secondary-container: #3a4452;
+    --color-on-secondary-container: #e1e9f5;
+    --color-outline: #80848e;
+    --color-outline-variant: #4e5058;
+    --color-surface-variant: #2b2d31;
+    --color-inverse-surface: #f2f3f5;
+    --color-inverse-on-surface: #111214;
+  }
+
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     vertical-align: middle;
   }
 }
+
 
