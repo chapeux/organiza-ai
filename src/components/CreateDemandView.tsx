@@ -372,41 +372,6 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
               </div>
             </div>
 
-            {/* Technical Documents */}
-            <div className="bg-surface-container-lowest p-6 rounded-xl shadow-none ring-1 ring-outline-variant/15">
-              <h3 className="text-sm font-bold text-primary mb-4 uppercase tracking-wider font-headline">Documentos Técnicos</h3>
-              <div className="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center gap-3 text-center transition-all hover:border-primary group cursor-pointer">
-                <div className="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
-                  <span className="material-symbols-outlined">cloud_upload</span>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-on-surface">Clique para anexar</p>
-                  <p className="text-[10px] text-on-surface-variant">Arraste PDFs, DWG ou Docx (Máx 20MB)</p>
-                </div>
-              </div>
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between p-2 rounded bg-surface-container-low">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-sm">description</span>
-                    <span className="text-[10px] font-medium truncate max-w-[120px]">escopo_v1.pdf</span>
-                  </div>
-                  <button className="text-error hover:bg-error/10 p-1 rounded transition-colors"><span className="material-symbols-outlined text-xs">close</span></button>
-                </div>
-              </div>
-            </div>
-
-            {/* Info Card */}
-            <div className="bg-blue-900 rounded-xl p-6 text-white shadow-xl relative overflow-hidden">
-              <div className="relative z-10 space-y-3">
-                <h4 className="font-bold text-sm font-headline">Precisa de Ajuda?</h4>
-                <p className="text-xs text-blue-100/80 leading-relaxed">Consulte o guia de arquitetura industrial para classificar corretamente sua demanda.</p>
-                <button className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-xs font-bold transition-colors">Visualizar Guia</button>
-              </div>
-              <div className="absolute -right-4 -bottom-4 opacity-10">
-                <span className="material-symbols-outlined text-[100px]">architecture</span>
-              </div>
-            </div>
-
           </div>
         </div>
 
