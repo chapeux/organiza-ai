@@ -26,13 +26,30 @@ export default function TeamView({ searchQuery, onEditDemand, onViewDemand }: Te
       const { data: userData } = await supabase.auth.getUser();
       setCurrentUser(userData.user);
 
-      // Fetch demands where we are not the owner.
-      // Thanks to RLS, this will return demands that are public or we are a member of.
-      const { data, error } = await supabase
+      const userEmail = userData.user?.email;
+      let teamDemandIds: string[] = [];
+      if (userEmail) {
+        const { data: teamMembers } = await supabase
+          .from('demand_team_members')
+          .select('demand_id')
+          .eq('user_email', userEmail);
+        if (teamMembers) {
+          teamDemandIds = teamMembers.map(tm => tm.demand_id);
+        }
+      }
+
+      let query = supabase
         .from('demands_with_email')
         .select('*')
-        .neq('user_id', userData.user?.id)
-        .order('created_at', { ascending: false });
+        .neq('user_id', userData.user?.id);
+
+      if (teamDemandIds.length > 0) {
+        query = query.or(`is_public.eq.true,id.in.(${teamDemandIds.join(',')})`);
+      } else {
+        query = query.eq('is_public', true);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       setDemands(data || []);
@@ -89,7 +106,16 @@ export default function TeamView({ searchQuery, onEditDemand, onViewDemand }: Te
                 filteredDemands.map((demand) => (
                   <tr key={demand.id} className="border-b border-outline-variant/10 hover:bg-surface-container-high transition-colors">
                     <td className="py-3 px-6 text-sm font-mono text-outline">{demand.ticket_code || '-'}</td>
-                    <td className="py-3 px-6 font-medium text-on-surface">{demand.title}</td>
+                    <td className="py-3 px-6 font-medium text-on-surface">
+                      <div className="flex items-center gap-2">
+                        {demand.title}
+                        {!demand.is_public && (
+                          <span title="Demanda privada. Você é membro da equipe." className="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
+                            Privado
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 px-6 text-sm text-outline">
                       {demand.creator_email?.split('@')[0] || 'Usuário Desconhecido'}
                     </td>
