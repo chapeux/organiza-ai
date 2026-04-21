@@ -114,7 +114,7 @@ export default function ProfileView({ session }: { session: any }) {
               <HardHat size={20} />
             </div>
             <div>
-              <h1 className="font-headline font-extrabold text-blue-900 leading-tight">Arquitetura Industrial</h1>
+              <h1 className="font-headline font-extrabold text-blue-900 leading-tight">WEG Synergy</h1>
               <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Painel de Controle</p>
             </div>
           </div>
