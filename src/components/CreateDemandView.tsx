@@ -11,6 +11,8 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
   const [networkPath, setNetworkPath] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<'baixa' | 'media' | 'alta' | 'critica'>('media');
+  const [isPublic, setIsPublic] = useState(false);
+  const [teamEmails, setTeamEmails] = useState('');
   const [steps, setSteps] = useState<{ id: number, label: string, date: string }[]>([
     { id: Date.now(), label: 'Levantamento Técnico', date: format(new Date(), 'yyyy-MM-dd') }
   ]);
@@ -59,6 +61,14 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, type })
         });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Workflow error response:', errorText);
+          alert(`Erro no servidor (Workflow ${res.status}): ${errorText.substring(0, 100)}`);
+          return;
+        }
+
         const data = await res.json();
         if (data.error) {
             alert(data.error);
@@ -69,9 +79,9 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
               date: s.days_to_complete ? format(addDays(new Date(), s.days_to_complete), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')
             })));
         }
-    } catch (err) {
+    } catch (err: any) {
         console.error('Suggest error', err);
-        alert('Ocorreu um erro ao conectar com o serviço de IA.');
+        alert(`Erro de conexão (Workflow): ${err.message || 'Verifique os logs.'}`);
     } finally {
         setIsSuggesting(false);
     }
@@ -94,6 +104,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
         user_id: user?.id,
         location: location || null,
         network_path: networkPath || null,
+        is_public: isPublic,
       };
       if (type === 'ticket') {
         payload.ticket_code = ticketCode;
@@ -102,6 +113,19 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
       const { data: demand, error: demandError } = await supabase.from('demands').insert(payload).select().single();
 
       if (demandError) throw demandError;
+
+      // Inserir os membros da equipe
+      if (teamEmails.trim()) {
+        const emails = teamEmails.split(',').map(e => e.trim()).filter(e => e);
+        if (emails.length > 0) {
+          const teamPayload = emails.map(email => ({
+             demand_id: demand.id,
+             user_email: email
+          }));
+          const { error: teamError } = await supabase.from('demand_team_members').insert(teamPayload);
+          if (teamError) console.error('Erro ao adicionar equipe:', teamError);
+        }
+      }
 
       if ((type === 'task' || type === 'project') && steps.length > 0) {
         const workflowSteps = steps.map((s, idx) => ({
@@ -216,6 +240,34 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
                     value={networkPath}
                     onChange={e => setNetworkPath(e.target.value)}
                   />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Privacidade e Equipe</label>
+                <div className="bg-surface-container-low p-4 rounded-xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-on-surface">Demanda Pública</h4>
+                      <p className="text-xs text-on-surface-variant">Permite que outros usuários visualizem esta demanda na aba Equipe.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} />
+                      <div className="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <label className="text-xs font-semibold text-on-surface">Adicionar email de membros da equipe (separados por vírgula)</label>
+                    <input 
+                      className="w-full mt-1 bg-surface-container border-0 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                      placeholder="joao@weg.net, maria@weg.net" 
+                      type="text"
+                      value={teamEmails}
+                      onChange={e => setTeamEmails(e.target.value)}
+                    />
+                    <p className="text-xs text-on-surface-variant mt-1">Membros poderão visualizar e editar a demanda no painel deles.</p>
+                  </div>
                 </div>
               </div>
 

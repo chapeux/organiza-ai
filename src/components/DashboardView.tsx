@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDemands } from '../hooks/useDemands';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
 import CreateDemandModal from './CreateDemandModal';
+import { Users } from 'lucide-react';
 
 export default function DashboardView({ onEditDemand, searchQuery = '', userName }: { onEditDemand?: (demand: any) => void, searchQuery?: string, userName?: string }) {
   const { demands, loading, hasSupabase, refresh } = useDemands();
@@ -11,6 +12,13 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
   const [filter, setFilter] = useState<'open' | 'all'>('open');
   const [typeFilter, setTypeFilter] = useState<'all' | 'project' | 'task' | 'ticket'>('all');
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setCurrentUserId(data.user.id);
+    });
+  }, []);
 
   const handleEditClick = (demand: any, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -204,6 +212,11 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                       <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${demand.status === 'concluido' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 'bg-secondary-container text-on-secondary-container'}`}>
                         {demand.type} • {demand.status || 'Em Andamento'}
                       </div>
+                      {currentUserId && demand.user_id && currentUserId !== demand.user_id && (
+                        <div title={`Compartilhado por equipe`} className="bg-primary/10 text-primary p-1 rounded-full flex items-center justify-center">
+                          <Users size={14} />
+                        </div>
+                      )}
                     </div>
                     <div className="relative" onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === demand.id ? null : demand.id); }}>
                       <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors cursor-pointer">more_vert</span>
@@ -269,7 +282,12 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                                    </div>
                                </td>
                                <td className="px-6 py-4 font-bold text-primary max-w-sm truncate">
-                                   {demand.title}
+                                   <div className="flex items-center gap-2">
+                                     {demand.title}
+                                     {currentUserId && demand.user_id && currentUserId !== demand.user_id && (
+                                        <Users size={14} className="text-primary opacity-70" title="Compartilhado por equipe" />
+                                     )}
+                                   </div>
                                </td>
                                <td className="px-6 py-4 text-xs font-semibold text-on-surface-variant">
                                    {demand.location || <span className="opacity-40">-</span>}

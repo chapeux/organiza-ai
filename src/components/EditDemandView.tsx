@@ -18,6 +18,8 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
   const [location, setLocation] = useState(demand.location || '');
   const [networkPath, setNetworkPath] = useState(demand.network_path || '');
   const [recurrence, setRecurrence] = useState(demand.recurrence || 'none');
+  const [isPublic, setIsPublic] = useState(demand.is_public || false);
+  const [teamEmails, setTeamEmails] = useState('');
   const [manualStatus, setManualStatus] = useState(demand.status || 'aberto');
   const [steps, setSteps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,23 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
 
   useEffect(() => {
     fetchSteps();
+    fetchTeam();
   }, [demand.id]);
+
+  const fetchTeam = async () => {
+    if (!demand.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('demand_team_members')
+        .select('user_email')
+        .eq('demand_id', demand.id);
+      if (!error && data) {
+        setTeamEmails(data.map(tm => tm.user_email).join(', '));
+      }
+    } catch (err) {
+      console.log('Error fetching team emails:', err);
+    }
+  };
 
   const fetchSteps = async () => {
     if (!demand.id) {
@@ -114,6 +132,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
           ticket_code: demand.type === 'ticket' ? ticketCode : null,
           location: location || null,
           network_path: networkPath || null,
+          is_public: isPublic,
           deadline: maxStepDate ? maxStepDate.toISOString() : null,
           status: derivedStatus,
           progress: progressPercentage,
@@ -122,6 +141,19 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
         .eq('id', demand.id);
 
       if (demandError) throw demandError;
+
+      // Update team members
+      await supabase.from('demand_team_members').delete().eq('demand_id', demand.id); // Clear first
+      if (teamEmails.trim()) {
+        const emails = teamEmails.split(',').map(e => e.trim()).filter(e => e);
+        if (emails.length > 0) {
+          const teamPayload = emails.map(email => ({
+             demand_id: demand.id,
+             user_email: email
+          }));
+          await supabase.from('demand_team_members').insert(teamPayload);
+        }
+      }
 
       // Update steps
       // For simplicity, we assume steps are already managed when checked or changed individually 
@@ -488,12 +520,43 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                   <input 
                     type="text" 
                     value={networkPath}
+                    readOnly={readOnly}
                     onChange={(e) => setNetworkPath(e.target.value)}
                     placeholder="Ex: P:\Engenharia\Projetos\Linha04"
                     className="w-full px-4 py-3 pl-12 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all outline-none" 
                   />
                 </div>
               </div>
+
+              {!readOnly && (
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Privacidade e Equipe</label>
+                  <div className="bg-surface-container-low p-4 rounded-xl space-y-4 border border-outline-variant/10">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-bold text-on-surface">Demanda Pública</h4>
+                        <p className="text-xs text-on-surface-variant">Permite que outros usuários visualizem esta demanda na aba Equipe.</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} />
+                        <div className="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      </label>
+                    </div>
+                    
+                    <div className="pt-2 border-t border-outline-variant/10">
+                      <label className="text-xs font-semibold text-on-surface mt-2 block">Adicionar email de membros da equipe (separados por vírgula)</label>
+                      <input 
+                        className="w-full mt-1 bg-surface-container border-0 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary text-on-surface transition-all outline-none" 
+                        placeholder="joao@weg.net, maria@weg.net" 
+                        type="text"
+                        value={teamEmails}
+                        onChange={e => setTeamEmails(e.target.value)}
+                      />
+                      <p className="text-xs text-on-surface-variant mt-1 mb-2">E-mails das pessoas que poderão editar as informações deste projeto.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wide">Descrição Técnica</label>
                 <textarea 

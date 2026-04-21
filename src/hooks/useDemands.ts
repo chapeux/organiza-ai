@@ -18,6 +18,7 @@ export type Demand = {
   deadline?: string;     // Novo campo
   location?: string;     // Novo campo Local
   network_path?: string; // Link ou Caminho de Rede
+  is_public?: boolean;
   completedDate?: string; // Data de conclusão
 };
 
@@ -44,11 +45,33 @@ export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
         return;
       }
 
+       const userEmail = user.email;
+
+       // Passo 1: Descobrir em quais demandas eu fui adicionado como equipe
+       let teamDemandIds: string[] = [];
+       if (userEmail) {
+         const { data: teamMembers } = await supabase
+           .from('demand_team_members')
+           .select('demand_id')
+           .eq('user_email', userEmail);
+         if (teamMembers) {
+           teamDemandIds = teamMembers.map(tm => tm.demand_id);
+         }
+       }
+
+       // Passo 2: Buscar demandas onde sou dono OU estou na equipe
        let query = supabase
-        .from('demands_with_email') // Usando a view para ter o email
-        .select('*')
-        .eq('user_id', user.id) // Restaura filtro de segurança
-        .order('created_at', { ascending: false });
+        .from('demands_with_email')
+        .select('*');
+
+       if (teamDemandIds.length > 0) {
+         // Filtra dono OU id in teamDemandIds
+         query = query.or(`user_id.eq.${user.id},id.in.(${teamDemandIds.join(',')})`);
+       } else {
+         query = query.eq('user_id', user.id);
+       }
+
+       query = query.order('created_at', { ascending: false });
 
       if (typeFilter) {
         query = query.eq('type', typeFilter);
