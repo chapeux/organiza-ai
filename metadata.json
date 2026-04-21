@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Gestão de Demandas",
+  "description": "Sistema completo para registro, workflow e relatórios de tarefas e projetos com suporte a IA Groq e Supabase.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

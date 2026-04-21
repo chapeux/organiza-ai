@@ -13,13 +13,21 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Init Groq using the server environment variable
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// Lazy init helper for Groq
+let groqClient: Groq | null = null;
+const getGroqClient = () => {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) return null;
+  if (!groqClient) {
+    groqClient = new Groq({ apiKey });
+  }
+  return groqClient;
+};
 
 app.post('/api/groq/enhance', async (req, res) => {
   try {
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
+    const groq = getGroqClient();
+    if (!groq) {
       return res.status(500).json({ error: 'Erro: A chave da API do GROQ (GROQ_API_KEY) não está configurada nos Settings (Segredos) desta aplicação. Por favor, adicione sua chave de API Groq.' });
     }
 
@@ -32,7 +40,7 @@ app.post('/api/groq/enhance', async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: "Você é um especialista em documentação industrial. O usuário enviou um texto. Reescreva isso de forma técnica, clara e profissional para um relatório, mantendo os dados principais. Retorne apenas o texto melhorado."
+          content: "Você é um revisor de textos industriais. Sua única função é corrigir gramática e polir o tom para torná-lo profissional e técnico. É PROIBIDO inventar informações, adicionar detalhes não informados pelo usuário ou criar textos longos. Seja extremamente conciso e fiel ao conteúdo original. Se o texto original for curto, a resposta deve ser curta. Retorne apenas o texto revisado."
         },
         {
           role: 'user',
@@ -51,8 +59,8 @@ app.post('/api/groq/enhance', async (req, res) => {
 
 app.post('/api/groq/suggest-workflow', async (req, res) => {
   try {
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
+    const groq = getGroqClient();
+    if (!groq) {
       return res.status(500).json({ error: 'Erro: A chave da API do GROQ (GROQ_API_KEY) não está configurada nos Settings (Segredos) desta aplicação. Por favor, adicione sua chave de API Groq.' });
     }
 
@@ -61,9 +69,10 @@ app.post('/api/groq/suggest-workflow', async (req, res) => {
       return res.status(400).json({ error: 'Title is required' });
     }
 
-    const prompt = `Crie um workflow de 4 a 6 etapas para a demanda (tipo: ${type}): "${title}". 
-Retorne APENAS um JSON estrito no seguinte formato, sem formatação markdown extra:
-{ "steps": [{"label": "Nome da Etapa", "days_to_complete": 3}] }`;
+    const prompt = `Crie um workflow curto e objetivo (4 a 6 etapas) para a demanda industrial (tipo: ${type}): "${title}". 
+Use rótulos técnicos sucintos (máximo 4 palavras por etapa).
+Retorne APENAS um JSON estrito no seguinte formato:
+{ "steps": [{"label": "Nome Curto", "days_to_complete": 3}] }`;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
@@ -115,4 +124,9 @@ async function startServer() {
   });
 }
 
-startServer();
+// Export for serverless environments like Vercel
+export default app;
+
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  startServer();
+}
