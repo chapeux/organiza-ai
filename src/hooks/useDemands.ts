@@ -16,6 +16,7 @@ export type Demand = {
   user_id?: string;
   creator_email?: string; // Novo campo
   deadline?: string;     // Novo campo
+  location?: string;     // Novo campo Local
 };
 
 export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {

@@ -7,6 +7,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
   const [type, setType] = useState<'task' | 'project' | 'ticket'>('task');
   const [title, setTitle] = useState('');
   const [ticketCode, setTicketCode] = useState('');
+  const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<'baixa' | 'media' | 'alta' | 'critica'>('media');
   const [steps, setSteps] = useState<{ id: number, label: string, date: string }[]>([
@@ -82,6 +83,7 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
         type,
         priority,
         user_id: user?.id,
+        location: location || null,
       };
       if (type === 'ticket') {
         payload.ticket_code = ticketCode;
@@ -181,6 +183,17 @@ export default function CreateDemandView({ onBack }: { onBack?: () => void }) {
                   />
                 </div>
               )}
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Local / Unidade (Opcional)</label>
+                <input 
+                  className="w-full bg-surface-container-low border-0 rounded-lg p-4 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                  placeholder="Ex: WEG Itajaí, Seção Expedição..." 
+                  type="text"
+                  value={location}
+                  onChange={e => setLocation(e.target.value)}
+                />
+              </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">

@@ -14,6 +14,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
   const [title, setTitle] = useState(demand.title || '');
   const [description, setDescription] = useState(demand.description || '');
   const [ticketCode, setTicketCode] = useState(demand.ticket_code || '');
+  const [location, setLocation] = useState(demand.location || '');
   const [recurrence, setRecurrence] = useState(demand.recurrence || 'none');
   const [manualStatus, setManualStatus] = useState(demand.status || 'aberto');
   const [steps, setSteps] = useState<any[]>([]);
@@ -109,6 +110,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
           title,
           description,
           ticket_code: demand.type === 'ticket' ? ticketCode : null,
+          location: location || null,
           deadline: maxStepDate ? maxStepDate.toISOString() : null,
           status: derivedStatus,
           progress: progressPercentage,
@@ -466,6 +468,16 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                   />
                 </div>
               )}
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wide">Local / Unidade (Opcional)</label>
+                <input 
+                  type="text" 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Ex: WEG Itajaí"
+                  className="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all" 
+                />
+              </div>
               <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wide">Descrição Técnica</label>
                 <textarea 

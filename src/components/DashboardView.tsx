@@ -210,6 +210,12 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                 {demand.type === 'project' && (
                   <p className="text-sm text-on-surface-variant mb-6">Etapa: {(demand as any).currentStep?.label || 'Iniciado'}</p>
                 )}
+                {demand.location && (
+                  <p className="text-xs font-semibold text-slate-500 mb-4 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">location_on</span>
+                    {demand.location}
+                  </p>
+                )}
                 <div className="space-y-2 mt-4">
                   <div className="flex justify-between text-xs font-bold">
                     <span>Progresso</span>
