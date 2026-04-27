@@ -3,12 +3,23 @@ import { supabase } from '../lib/supabase';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'motion/react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 interface EditDemandViewProps {
   key?: React.Key;
   demand: any;
   onBack: () => void;
   readOnly?: boolean;
+}
+
+interface WorkflowStep {
+  id: string;
+  demand_id: string;
+  label: string;
+  order_index: number;
+  is_completed: boolean;
+  estimated_date?: string | null;
+  completed_at?: string | null;
 }
 
 export default function EditDemandView({ demand, onBack, readOnly = false }: EditDemandViewProps) {
@@ -22,7 +33,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
   const [isPublic, setIsPublic] = useState(demand.is_public || false);
   const [teamEmails, setTeamEmails] = useState('');
   const [manualStatus, setManualStatus] = useState(demand.status || 'aberto');
-  const [steps, setSteps] = useState<any[]>([]);
+  const [steps, setSteps] = useState<WorkflowStep[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [renewing, setRenewing] = useState(false);
@@ -306,6 +317,42 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
       }
     } catch (error) {
       console.error('Error adding step:', error);
+    }
+  };
+
+  const onDragEnd = async (result: DropResult) => {
+    if (!result.destination || readOnly) return;
+    
+    const { source, destination } = result;
+    if (source.index === destination.index) return;
+
+    const newSteps = Array.from(steps);
+    const [reorderedItem] = newSteps.splice(source.index, 1);
+    newSteps.splice(destination.index, 0, reorderedItem);
+
+    // Update state immediately
+    setSteps(newSteps);
+
+    // Update order_index in database
+    try {
+      const updates = newSteps.map((step: WorkflowStep, index: number) => ({
+        id: step.id,
+        order_index: index,
+        demand_id: demand.id,
+        label: step.label,
+        is_completed: step.is_completed,
+        estimated_date: step.estimated_date,
+        completed_at: step.completed_at
+      }));
+
+      const { error } = await supabase
+        .from('workflow_steps')
+        .upsert(updates);
+      
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error updating step order:', err);
+      fetchSteps(); // Revert on error
     }
   };
 
@@ -625,82 +672,117 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                 </div>
               ) : steps.length === 0 ? (
                 <p className="text-sm text-center text-outline py-8">Nenhuma etapa definida para este projeto ainda.</p>
-              ) : steps.map((step) => (
-                <div 
-                  key={step.id} 
-                  className={`flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 p-4 rounded-xl transition-all border ${
-                    step.is_completed 
-                      ? 'bg-primary-fixed/30 border-primary-fixed' 
-                      : 'bg-surface-container-low border-transparent hover:border-outline-variant'
-                  }`}
-                >
-                  <button 
-                    disabled={readOnly}
-                    onClick={() => toggleStepCompletion(step.id, !step.is_completed)}
-                    className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-full border-2 transition-colors ${
-                      step.is_completed 
-                        ? 'border-primary bg-primary text-on-primary' 
-                        : 'border-outline-variant bg-surface-container hover:border-primary'
-                    }`}
-                  >
-                    {step.is_completed && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
-                  </button>
-                  
-                  <input 
-                    type="text" 
-                    value={step.label}
-                    readOnly={readOnly}
-                    onChange={async (e) => {
-                      const newLabel = e.target.value;
-                      setSteps(steps.map(s => s.id === step.id ? { ...s, label: newLabel } : s));
-                      await supabase.from('workflow_steps').update({ label: newLabel }).eq('id', step.id);
-                    }}
-                    className={`flex-1 bg-transparent border-none p-0 text-sm font-semibold focus:ring-0 min-w-[150px] ${
-                      step.is_completed ? 'text-primary' : 'text-on-surface'
-                    }`} 
-                    placeholder="Nome da etapa..." 
-                  />
-                  
-                  <div className={`flex shrink-0 items-center gap-2 px-3 py-1.5 rounded border transition-colors ${
-                    step.is_completed ? 'bg-primary/10 border-transparent text-primary' : 'bg-surface-container-high/50 border-outline-variant/30 text-outline'
-                  }`}>
-                    {step.is_completed ? (
-                      <>
-                        <span className="material-symbols-outlined text-sm font-bold">check_circle</span>
-                        <span className="text-[11px] font-bold uppercase tracking-wider">
-                          Concluído em: {step.completed_at ? format(new Date(step.completed_at), "dd/MM/yyyy 'às' HH:mm") : format(new Date(), "dd/MM/yyyy 'às' HH:mm")}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="material-symbols-outlined text-sm">calendar_today</span>
-                        <input 
-                          type="date"
-                          disabled={readOnly}
-                          value={step.estimated_date ? format(new Date(step.estimated_date), 'yyyy-MM-dd') : ''}
-                          onChange={async (e) => {
-                            const newDate = e.target.value;
-                            setSteps(steps.map(s => s.id === step.id ? { ...s, estimated_date: newDate ? new Date(newDate).toISOString() : null } : s));
-                            await supabase.from('workflow_steps').update({ estimated_date: newDate ? new Date(newDate).toISOString() : null }).eq('id', step.id);
-                          }}
-                           className="bg-transparent border-none p-0 text-[11px] font-bold uppercase tracking-wider focus:ring-0 min-w-[100px] cursor-pointer"
-                        />
-                      </>
+              ) : (
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="steps">
+                    {(provided) => (
+                      <div 
+                        {...provided.droppableProps} 
+                        ref={provided.innerRef}
+                        className="space-y-4"
+                      >
+                        {steps.map((step: WorkflowStep, index: number) => {
+                          const DraggableAny = Draggable as any;
+                          return (
+                            <DraggableAny 
+                              key={step.id} 
+                              draggableId={step.id} 
+                              index={index}
+                              isDragDisabled={readOnly}
+                            >
+                              {(provided: any, snapshot: any) => (
+                                <div 
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  className={`flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 p-4 rounded-xl transition-all border ${
+                                    snapshot.isDragging ? 'shadow-2xl scale-[1.02] rotate-1 z-50 bg-surface-container-high border-primary' :
+                                    step.is_completed 
+                                      ? 'bg-primary-fixed/30 border-primary-fixed' 
+                                      : 'bg-surface-container-low border-transparent hover:border-outline-variant'
+                                  }`}
+                                >
+                                  {!readOnly && (
+                                    <div {...provided.dragHandleProps} className="text-outline cursor-grab active:cursor-grabbing hover:text-primary transition-colors">
+                                      <span className="material-symbols-outlined text-[20px]">drag_indicator</span>
+                                    </div>
+                                  )}
+                                  
+                                  <button 
+                                    disabled={readOnly}
+                                    onClick={() => toggleStepCompletion(step.id, !step.is_completed)}
+                                    className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-full border-2 transition-colors ${
+                                      step.is_completed 
+                                        ? 'border-primary bg-primary text-on-primary' 
+                                        : 'border-outline-variant bg-surface-container hover:border-primary'
+                                    }`}
+                                  >
+                                    {step.is_completed && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
+                                  </button>
+                                  
+                                  <input 
+                                    type="text" 
+                                    value={step.label}
+                                    readOnly={readOnly}
+                                    onChange={async (e) => {
+                                      const newLabel = e.target.value;
+                                      setSteps(steps.map(s => s.id === step.id ? { ...s, label: newLabel } : s));
+                                      await supabase.from('workflow_steps').update({ label: newLabel }).eq('id', step.id);
+                                    }}
+                                    className={`flex-1 bg-transparent border-none p-0 text-sm font-semibold focus:ring-0 min-w-[150px] ${
+                                      step.is_completed ? 'text-primary' : 'text-on-surface'
+                                    }`} 
+                                    placeholder="Nome da etapa..." 
+                                  />
+                                  
+                                  <div className={`flex shrink-0 items-center gap-2 px-3 py-1.5 rounded border transition-colors ${
+                                    step.is_completed ? 'bg-primary/10 border-transparent text-primary' : 'bg-surface-container-high/50 border-outline-variant/30 text-outline'
+                                  }`}>
+                                    {step.is_completed ? (
+                                      <>
+                                        <span className="material-symbols-outlined text-sm font-bold">check_circle</span>
+                                        <span className="text-[11px] font-bold uppercase tracking-wider">
+                                          Concluído em: {step.completed_at ? format(new Date(step.completed_at), "dd/MM/yyyy 'às' HH:mm") : format(new Date(), "dd/MM/yyyy 'às' HH:mm")}
+                                        </span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span className="material-symbols-outlined text-sm">calendar_today</span>
+                                        <input 
+                                          type="date"
+                                          disabled={readOnly}
+                                          value={step.estimated_date ? format(new Date(step.estimated_date), 'yyyy-MM-dd') : ''}
+                                          onChange={async (e) => {
+                                            const newDate = e.target.value;
+                                            setSteps(steps.map(s => s.id === step.id ? { ...s, estimated_date: newDate ? new Date(newDate).toISOString() : null } : s));
+                                            await supabase.from('workflow_steps').update({ estimated_date: newDate ? new Date(newDate).toISOString() : null }).eq('id', step.id);
+                                          }}
+                                           className="bg-transparent border-none p-0 text-[11px] font-bold uppercase tracking-wider focus:ring-0 min-w-[100px] cursor-pointer"
+                                        />
+                                      </>
+                                    )}
+                                  </div>
+                                   {!readOnly && (
+                                   <button 
+                                    onClick={async () => {
+                                      setSteps(steps.filter(s => s.id !== step.id));
+                                       await supabase.from('workflow_steps').delete().eq('id', step.id);
+                                    }}
+                                    className="p-1.5 text-outline hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ml-auto sm:ml-0"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                  </button>
+                                  )}
+                                </div>
+                              )}
+                            </DraggableAny>
+                          );
+                        })}
+                        {provided.placeholder}
+                      </div>
                     )}
-                  </div>
-                   {!readOnly && (
-                   <button 
-                    onClick={async () => {
-                      setSteps(steps.filter(s => s.id !== step.id));
-                       await supabase.from('workflow_steps').delete().eq('id', step.id);
-                    }}
-                    className="p-1.5 text-outline hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ml-auto sm:ml-0"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                  </button>
-                  )}
-                </div>
-              ))}
+                  </Droppable>
+                </DragDropContext>
+              )}
             </div>
           </section>
           
