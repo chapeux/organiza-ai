@@ -1,20 +1,53 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Demand Manager & Workflow System
 
-# Run and deploy your AI Studio app
+Um sistema para centralizar o gerenciamento de demandas, organizar tickets e estruturar fluxos de trabalho. O foco do projeto é dar visibilidade ao progresso da equipe e garantir o cumprimento de prazos através de uma interface funcional e atualizações em tempo real.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/ad5fe8dc-67cb-4a5f-bbf1-3f0871f70632
+## 🛠️ O que o sistema faz
 
-## Run Locally
+### Gestão de Demandas e Projetos
+* **Fluxos Distintos:** Separação entre tarefas simples (tickets) e projetos estruturados com múltiplas etapas.
+* **Controle de Prazos:** Definição manual de datas globais ou cálculo automático baseado na duração das etapas do workflow.
+* **Priorização:** Classificação de criticidade (Baixa a Crítica) com indicadores visuais para facilitar a triagem.
+* **Contexto e Localização:** Campos dedicados para caminhos de rede, links externos e unidades específicas.
 
-**Prerequisites:**  Node.js
+### Workflow Dinâmico
+* **Organizador Visual:** Reordenação de etapas via Drag-and-Drop (arrastar e soltar).
+* **Progresso Automático:** Cálculo da porcentagem de conclusão conforme as etapas são finalizadas.
+* **Rastreabilidade:** Registro automático de data e hora para cada ação concluída no fluxo.
 
+### Dashboards e Relatórios
+* **Visões Customizadas:** Painel focado para o usuário (prazos iminentes) e visão administrativa para gestores (supervisão total).
+* **Status de Tempo:** Alertas visuais coloridos para demandas Atrasadas, No Prazo ou Próximas do Fim.
+* **Exportação em PDF:** Geração de relatórios organizados com links clicáveis diretamente no documento.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---
+
+## 💻 Tecnologias Utilizadas
+
+* **Frontend:** React + Vite + TypeScript.
+* **Estilização:** Tailwind CSS (Baseado em Material Design 3).
+* **Backend & Realtime:** Supabase (PostgreSQL) com integração em tempo real.
+* **Animações:** Framer Motion.
+* **Ícones:** Phosphor Icons, Hugeicons e Lucide.
+* **Utilitários:** `date-fns` (datas) e `jsPDF` (relatórios).
+
+---
+
+## 🗄️ Estrutura do Banco de Dados (Supabase)
+
+O sistema utiliza as seguintes tabelas principais:
+- `demands`: Dados mestre das solicitações.
+- `workflow_steps`: Etapas e progresso individual de cada projeto.
+- `demand_teams`: Gestão de visibilidade para demandas privadas.
+
+> **Nota:** O arquivo `supabase_schema.sql` na raiz contém o script necessário para replicar o ambiente no SQL Editor do Supabase.
+
+---
+
+## ⚙️ Configuração e Instalação
+
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
