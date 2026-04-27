@@ -42,63 +42,90 @@ CREATE TABLE public.workflow_steps (
 );
 
 -- 3. View para calcular progresso
-CREATE OR REPLACE VIEW demand_progress AS
+DROP VIEW IF EXISTS public.demand_progress CASCADE;
+CREATE OR REPLACE VIEW public.demand_progress AS
 SELECT 
     demand_id,
     COUNT(*) as total_steps,
     COUNT(*) FILTER (WHERE is_completed = true) as completed_steps,
     ROUND((COUNT(*) FILTER (WHERE is_completed = true)::numeric / NULLIF(COUNT(*)::numeric, 0)) * 100) as percentage
-FROM workflow_steps
+FROM public.workflow_steps
 GROUP BY demand_id;
 
--- 4. View de Demandas com E-mail do Criador (com security invoker para aplicar RLS)
-CREATE OR REPLACE VIEW demands_with_email WITH (security_invoker=true) AS
+-- 4. View de Demandas com E-mail do Criador
+-- Nota: Rodamos sem security_invoker para que a view execute com as permissões
+-- do criador (postgres), permitindo o join com auth.users que é restrito.
+-- O filtro WHERE interno garante que a privacidade seja respeitada.
+DROP VIEW IF EXISTS public.demands_with_email CASCADE;
+CREATE OR REPLACE VIEW public.demands_with_email AS
 SELECT 
     d.*,
     u.email as creator_email
-FROM demands d
-LEFT JOIN auth.users u ON d.user_id = u.id;
+FROM public.demands d
+LEFT JOIN auth.users u ON d.user_id = u.id
+WHERE 
+    d.user_id = auth.uid() 
+    OR d.is_public = true 
+    OR EXISTS (
+        SELECT 1 FROM public.demand_team_members tm 
+        WHERE tm.demand_id = d.id 
+        AND tm.user_email = (COALESCE(auth.jwt() ->> 'email', ''))
+    );
 
--- Habilitar RLS (Row Level Security)
+-- Habilitar RLS (Row Level Security) nas tabelas base
 ALTER TABLE public.demands ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.workflow_steps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.demand_team_members ENABLE ROW LEVEL SECURITY;
 
 -- ==== POLÍTICAS DE ACESSO ====
+-- Removemos antes de criar para evitar erros de "já existe"
 
--- Demandas (Select): Dono, equipes ou demandas públicas
+-- Tabela Demands
+DROP POLICY IF EXISTS "Users can view demands" ON public.demands;
 CREATE POLICY "Users can view demands" ON public.demands FOR SELECT USING (
   auth.uid() = user_id 
   OR is_public = true 
-  OR auth.jwt() ->> 'email' IN (SELECT user_email FROM demand_team_members WHERE demand_id = id)
+  OR (COALESCE(auth.jwt() ->> 'email', '')) IN (SELECT user_email FROM public.demand_team_members WHERE demand_id = id)
 );
 
+DROP POLICY IF EXISTS "Users can insert own demands" ON public.demands;
 CREATE POLICY "Users can insert own demands" ON public.demands FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- Demandas (Update): Dono ou membros da equipe
+DROP POLICY IF EXISTS "Users can update demands" ON public.demands;
 CREATE POLICY "Users can update demands" ON public.demands FOR UPDATE USING (
   auth.uid() = user_id
-  OR auth.jwt() ->> 'email' IN (SELECT user_email FROM demand_team_members WHERE demand_id = id)
+  OR (COALESCE(auth.jwt() ->> 'email', '')) IN (SELECT user_email FROM public.demand_team_members WHERE demand_id = id)
 );
 
+DROP POLICY IF EXISTS "Users can delete own demands" ON public.demands;
 CREATE POLICY "Users can delete own demands" ON public.demands FOR DELETE USING (auth.uid() = user_id);
 
--- Passos de Workflow: Mesmas permissões da demanda pai
+-- Tabela Workflow Steps
+DROP POLICY IF EXISTS "Users can view steps" ON public.workflow_steps;
 CREATE POLICY "Users can view steps" ON public.workflow_steps FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR is_public = true OR auth.jwt() ->> 'email' IN (SELECT user_email FROM demand_team_members WHERE demand_id = public.demands.id)))
-);
-CREATE POLICY "Users can insert steps" ON public.workflow_steps FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR auth.jwt() ->> 'email' IN (SELECT user_email FROM demand_team_members WHERE demand_id = public.demands.id)))
-);
-CREATE POLICY "Users can update steps" ON public.workflow_steps FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR auth.jwt() ->> 'email' IN (SELECT user_email FROM demand_team_members WHERE demand_id = public.demands.id)))
-);
-CREATE POLICY "Users can delete steps" ON public.workflow_steps FOR DELETE USING (
-  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR auth.jwt() ->> 'email' IN (SELECT user_email FROM demand_team_members WHERE demand_id = public.demands.id)))
+  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR is_public = true OR (COALESCE(auth.jwt() ->> 'email', '')) IN (SELECT user_email FROM public.demand_team_members WHERE demand_id = public.demands.id)))
 );
 
--- Team Members
+DROP POLICY IF EXISTS "Users can insert steps" ON public.workflow_steps;
+CREATE POLICY "Users can insert steps" ON public.workflow_steps FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR (COALESCE(auth.jwt() ->> 'email', '')) IN (SELECT user_email FROM public.demand_team_members WHERE demand_id = public.demands.id)))
+);
+
+DROP POLICY IF EXISTS "Users can update steps" ON public.workflow_steps;
+CREATE POLICY "Users can update steps" ON public.workflow_steps FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR (COALESCE(auth.jwt() ->> 'email', '')) IN (SELECT user_email FROM public.demand_team_members WHERE demand_id = public.demands.id)))
+);
+
+DROP POLICY IF EXISTS "Users can delete steps" ON public.workflow_steps;
+CREATE POLICY "Users can delete steps" ON public.workflow_steps FOR DELETE USING (
+  EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND (user_id = auth.uid() OR (COALESCE(auth.jwt() ->> 'email', '')) IN (SELECT user_email FROM public.demand_team_members WHERE demand_id = public.demands.id)))
+);
+
+-- Tabela Team Members
+DROP POLICY IF EXISTS "Ver membros da equipe" ON public.demand_team_members;
 CREATE POLICY "Ver membros da equipe" ON public.demand_team_members FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Modificar membros da equipe (Dono)" ON public.demand_team_members;
 CREATE POLICY "Modificar membros da equipe (Dono)" ON public.demand_team_members FOR ALL USING (
   EXISTS (SELECT 1 FROM public.demands WHERE id = demand_id AND user_id = auth.uid())
 );
