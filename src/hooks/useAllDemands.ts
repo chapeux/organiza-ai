@@ -15,14 +15,20 @@ export function useAllDemands() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error in useAllDemands fetch:', error);
+        throw error;
+      }
 
       // Fetch progress and steps
-      const { data: progressData } = await supabase.from('demand_progress').select('*');
-      const { data: stepsData } = await supabase
+      const { data: progressData, error: progressError } = await supabase.from('demand_progress').select('*');
+      if (progressError) console.warn('Progress fetch error:', progressError);
+      
+      const { data: stepsData, error: stepsError } = await supabase
         .from('workflow_steps')
         .select('demand_id, is_completed, label, estimated_date, completed_at')
         .order('order_index', { ascending: false });
+      if (stepsError) console.warn('Steps fetch error:', stepsError);
 
       const enriched: Demand[] = (demandsData || []).map(d => {
         const prog = progressData?.find((p: any) => p.demand_id === d.id);
