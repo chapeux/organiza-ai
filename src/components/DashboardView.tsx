@@ -276,6 +276,9 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                       <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${demand.status === 'concluido' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 'bg-secondary-container text-on-secondary-container'}`}>
                         {getTypeName(demand.type)} • {demand.status || 'Em Andamento'}
                       </div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-outline ml-1">
+                         {format(new Date(demand.created_at), 'dd/MM/yyyy')}
+                      </div>
                       {currentUserId && demand.user_id && currentUserId !== demand.user_id && (
                         <div title={`Compartilhado por equipe`} className="bg-primary/10 text-primary p-1 rounded-full flex items-center justify-center">
                           <Users size={14} />
@@ -358,6 +361,7 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                                        )}
                                        <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${demand.status === 'concluido' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 'bg-secondary-container text-on-secondary-container'}`}>
                                          {getTypeName(demand.type)} • {demand.status || 'aberto'}
+                                         <span className="ml-2 opacity-60"> {format(new Date(demand.created_at), 'dd/MM/yyyy')}</span>
                                        </div>
                                    </div>
                                </td>

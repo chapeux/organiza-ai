@@ -132,6 +132,7 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
             <tr>
               <th className="px-6 py-4">Tarefa</th>
               <th className="px-6 py-4">Tipo</th>
+              <th className="px-6 py-4">Criado em</th>
               <th className="px-6 py-4">Criado por</th>
               <th className="px-6 py-4">Prazo</th>
               <th className="px-6 py-4">Status</th>
@@ -154,6 +155,9 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
                   }`}>
                     {getTypeName(demand.type)}
                   </span>
+                </td>
+                <td className="px-6 py-4 text-on-surface-variant font-medium">
+                  {new Date(demand.created_at).toLocaleDateString('pt-BR')}
                 </td>
                 <td className="px-6 py-4 text-on-surface-variant">{demand.creator_email}</td>
                 <td className="px-6 py-4">
