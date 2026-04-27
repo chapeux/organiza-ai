@@ -356,6 +356,15 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
     }
   };
 
+  const getTypeName = (type: string) => {
+    switch (type) {
+      case 'project': return 'Projeto';
+      case 'task': return 'Tarefa';
+      case 'ticket': return 'Chamado';
+      default: return type;
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto w-full">
       {/* Project Header Section */}
@@ -367,7 +376,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
               onClick={onBack}
             >
               <span className="material-symbols-outlined text-sm">arrow_back</span>
-              {demand.type === 'project' ? 'Projetos' : 'Demandas'} / {readOnly ? 'Visualização' : 'Edição'}
+              {getTypeName(demand.type)} / {readOnly ? 'Visualização' : 'Edição'}
             </div>
             <h2 className="text-4xl font-extrabold font-headline tracking-tight text-primary uppercase">
               {demand.title}

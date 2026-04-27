@@ -63,6 +63,15 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
     }
   });
 
+  const getTypeName = (type: string) => {
+    switch (type) {
+      case 'project': return 'Projeto';
+      case 'task': return 'Tarefa';
+      case 'ticket': return 'Chamado';
+      default: return type;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -122,6 +131,7 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
           <thead className="bg-surface-container-low text-on-surface-variant font-bold border-b border-outline-variant/20 uppercase tracking-wider text-[10px]">
             <tr>
               <th className="px-6 py-4">Tarefa</th>
+              <th className="px-6 py-4">Tipo</th>
               <th className="px-6 py-4">Criado por</th>
               <th className="px-6 py-4">Prazo</th>
               <th className="px-6 py-4">Status</th>
@@ -136,6 +146,15 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
                 onClick={() => onViewDemand(demand)}
               >
                 <td className="px-6 py-4 font-bold text-primary">{demand.title}</td>
+                <td className="px-6 py-4">
+                  <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                    demand.type === 'project' ? 'bg-primary/10 text-primary' : 
+                    demand.type === 'task' ? 'bg-slate-100 text-slate-600' : 
+                    'bg-purple-100 text-purple-600'
+                  }`}>
+                    {getTypeName(demand.type)}
+                  </span>
+                </td>
                 <td className="px-6 py-4 text-on-surface-variant">{demand.creator_email}</td>
                 <td className="px-6 py-4">
                   <div className="flex flex-col gap-1">

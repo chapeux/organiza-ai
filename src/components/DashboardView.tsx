@@ -79,6 +79,15 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
     }
   };
 
+  const getTypeName = (type: string) => {
+    switch (type) {
+      case 'project': return 'Projeto';
+      case 'task': return 'Tarefa';
+      case 'ticket': return 'Chamado';
+      default: return type;
+    }
+  };
+
   const getDeadlineStatus = (demand: any) => {
     if (demand.status === 'concluido' || demand.status === 'concluído') return null;
     
@@ -265,7 +274,7 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                         <div className={`w-2.5 h-2.5 rounded-full ${demand.priority === 'critica' ? 'bg-red-600' : demand.priority === 'alta' ? 'bg-orange-500' : demand.priority === 'media' ? 'bg-blue-500' : 'bg-slate-400'}`}></div>
                       )}
                       <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${demand.status === 'concluido' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 'bg-secondary-container text-on-secondary-container'}`}>
-                        {demand.type} • {demand.status || 'Em Andamento'}
+                        {getTypeName(demand.type)} • {demand.status || 'Em Andamento'}
                       </div>
                       {currentUserId && demand.user_id && currentUserId !== demand.user_id && (
                         <div title={`Compartilhado por equipe`} className="bg-primary/10 text-primary p-1 rounded-full flex items-center justify-center">
@@ -348,7 +357,7 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                                          <div className={`w-2.5 h-2.5 rounded-full ${demand.priority === 'critica' ? 'bg-red-600' : demand.priority === 'alta' ? 'bg-orange-500' : demand.priority === 'media' ? 'bg-blue-500' : 'bg-slate-400'}`}></div>
                                        )}
                                        <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${demand.status === 'concluido' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 'bg-secondary-container text-on-secondary-container'}`}>
-                                         {demand.type} • {demand.status || 'aberto'}
+                                         {getTypeName(demand.type)} • {demand.status || 'aberto'}
                                        </div>
                                    </div>
                                </td>
