@@ -14,6 +14,7 @@ CREATE TABLE public.demands (
     deadline TIMESTAMP WITH TIME ZONE,
     progress INTEGER DEFAULT 0,
     recurrence TEXT DEFAULT 'none',
+    location TEXT,
     network_path TEXT,
     is_public BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
