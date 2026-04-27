@@ -52,9 +52,11 @@ export function useAllDemands() {
 
         const currentStep = stepsForDemand.find((s: any) => !s.is_completed);
 
-        // Define prazo baseado nas etapas
-        let deadlineDisplay = 'Sem etapas criadas';
-        if (stepsForDemand.length > 0) {
+        // Define prazo: prioriza o campo manual, senão usa a última etapa do workflow
+        let deadlineDisplay = 'Sem prazo definido';
+        if (d.deadline) {
+          deadlineDisplay = new Date(d.deadline).toLocaleDateString('pt-BR');
+        } else if (stepsForDemand.length > 0) {
           // Última etapa (ordem decrescente)
           const lastStep = stepsForDemand[0];
           deadlineDisplay = lastStep.estimated_date 
@@ -65,10 +67,11 @@ export function useAllDemands() {
         return {
           ...d,
           creator_email: d.creator_email || 'N/A',
-          deadline: deadlineDisplay,
+          deadline: d.deadline,
+          deadline_display: deadlineDisplay,
           progress: calculatedProgress,
           has_steps: stepsForDemand.length > 0,
-          currentStep: currentStep ? { label: currentStep.label, estimated_date: '' } : undefined,
+          currentStep: currentStep ? { label: currentStep.label, estimated_date: currentStep.estimated_date || '' } : undefined,
           workflow_steps: stepsForDemand,
           completedDate: lastCompletedDate ? lastCompletedDate.toISOString() : undefined
         };

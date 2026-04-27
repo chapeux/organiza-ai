@@ -17,6 +17,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
   const [ticketCode, setTicketCode] = useState(demand.ticket_code || '');
   const [location, setLocation] = useState(demand.location || '');
   const [networkPath, setNetworkPath] = useState(demand.network_path || '');
+  const [deadline, setDeadline] = useState(demand.deadline ? format(new Date(demand.deadline), 'yyyy-MM-dd') : '');
   const [recurrence, setRecurrence] = useState(demand.recurrence || 'none');
   const [isPublic, setIsPublic] = useState(demand.is_public || false);
   const [teamEmails, setTeamEmails] = useState('');
@@ -83,7 +84,9 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
     return !max || stepDate > max ? stepDate : max;
   }, null as Date | null);
 
-  const formattedMaxDate = maxStepDate ? format(maxStepDate, 'dd MMM, yyyy', { locale: ptBR }) : 'Não definido';
+  // Helper to find latest date from steps or global deadline
+  const finalDeadline = deadline ? new Date(deadline) : (maxStepDate || null);
+  const formattedFinalDate = finalDeadline ? format(finalDeadline, 'dd MMM, yyyy', { locale: ptBR }) : 'Não definido';
 
   const completedStepsCount = steps.filter(s => s.is_completed).length;
   const progressPercentage = steps.length > 0 
@@ -133,7 +136,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
           location: location || null,
           network_path: networkPath || null,
           is_public: isPublic,
-          deadline: maxStepDate ? maxStepDate.toISOString() : null,
+          deadline: deadline || (maxStepDate ? maxStepDate.toISOString() : null),
           status: derivedStatus,
           progress: progressPercentage,
           recurrence
@@ -426,7 +429,7 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
           <div className="flex items-center gap-6 z-10 w-full sm:w-auto overflow-x-auto hide-scrollbar">
             <div className="flex flex-col min-w-[120px]">
               <p className="text-[10px] uppercase font-bold text-on-primary-container tracking-widest mb-0.5 whitespace-nowrap">Prazo Final</p>
-              <p className="text-lg font-black font-headline capitalize">{formattedMaxDate}</p>
+              <p className="text-lg font-black font-headline capitalize">{formattedFinalDate}</p>
             </div>
 
             <div className="h-8 w-[1px] bg-white/20 hidden md:block"></div>
@@ -534,6 +537,20 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
                     readOnly={readOnly}
                     onChange={(e) => setNetworkPath(e.target.value)}
                     placeholder="Ex: P:\Engenharia\Projetos\Linha04"
+                    className="w-full px-4 py-3 pl-12 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all outline-none" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-wide">Prazo Final da Demanda</label>
+                <div className="relative flex items-center">
+                  <span className="material-symbols-outlined absolute left-4 text-on-surface-variant">event</span>
+                  <input 
+                    type="date" 
+                    value={deadline}
+                    readOnly={readOnly}
+                    onChange={(e) => setDeadline(e.target.value)}
                     className="w-full px-4 py-3 pl-12 bg-surface-container-low border-none rounded-lg text-primary font-semibold focus:ring-2 focus:ring-primary transition-all outline-none" 
                   />
                 </div>

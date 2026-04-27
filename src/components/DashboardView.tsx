@@ -6,19 +6,13 @@ import { supabase } from '../lib/supabase';
 import CreateDemandModal from './CreateDemandModal';
 import { Users } from 'lucide-react';
 
-export default function DashboardView({ onEditDemand, searchQuery = '', userName }: { onEditDemand?: (demand: any) => void, searchQuery?: string, userName?: string }) {
+export default function DashboardView({ onEditDemand, searchQuery = '', userName, currentUserId }: { onEditDemand?: (demand: any) => void, searchQuery?: string, userName?: string, currentUserId?: string }) {
   const { demands, loading, hasSupabase, refresh } = useDemands();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'open' | 'all'>('open');
   const [typeFilter, setTypeFilter] = useState<'all' | 'project' | 'task' | 'ticket'>('all');
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setCurrentUserId(data.user.id);
-    });
-  }, []);
+  const [sortBy, setSortBy] = useState<'name' | 'progress' | 'completion' | 'type' | 'deadline'>('deadline');
 
   const handleEditClick = (demand: any, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -85,6 +79,36 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
     }
   };
 
+  const getDeadlineStatus = (demand: any) => {
+    if (demand.status === 'concluido' || demand.status === 'concluído') return null;
+    
+    // Tenta pegar o prazo manual da demanda, senão tenta a etapa atual, senão a última etapa do workflow
+    let dateStr = demand.deadline;
+    
+    if (!dateStr) {
+      dateStr = demand.currentStep?.estimated_date;
+    }
+    
+    if (!dateStr && demand.workflow_steps?.length > 0) {
+      const lastStep = demand.workflow_steps[0]; // order_index desc
+      dateStr = lastStep.estimated_date;
+    }
+
+    if (!dateStr) return null;
+
+    const deadline = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    deadline.setHours(0, 0, 0, 0);
+    
+    const diffTime = deadline.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return { type: 'expired', label: 'Vencido', color: 'text-red-700 bg-red-50 border-red-200', icon: 'error' };
+    if (diffDays <= 5) return { type: 'warning', label: `Expira em ${diffDays} ${diffDays === 1 ? 'dia' : 'dias'}`, color: 'text-orange-700 bg-orange-50 border-orange-200', icon: 'running_with_errors' };
+    return null;
+  };
+
   const filteredDemands = demands.filter(d => {
     const matchesStatus = filter === 'open' ? d.status !== 'concluido' : true;
     const matchesType = typeFilter === 'all' ? true : d.type === typeFilter;
@@ -96,6 +120,26 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
       (d.type === 'ticket' && d.ticket_code?.toLowerCase().includes(search));
 
     return matchesStatus && matchesType && matchesSearch;
+  });
+
+  const sortedDemands = [...filteredDemands].sort((a, b) => {
+    switch (sortBy) {
+      case 'progress':
+        return (b.progress || 0) - (a.progress || 0);
+      case 'completion':
+        const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
+        const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
+        return dateB - dateA;
+      case 'deadline':
+        const deadlineA = a.deadline ? new Date(a.deadline).getTime() : (a.currentStep?.estimated_date ? new Date(a.currentStep.estimated_date).getTime() : Infinity);
+        const deadlineB = b.deadline ? new Date(b.deadline).getTime() : (b.currentStep?.estimated_date ? new Date(b.currentStep.estimated_date).getTime() : Infinity);
+        return deadlineA - deadlineB;
+      case 'type':
+        return (a.type || '').localeCompare(b.type || '');
+      case 'name':
+      default:
+        return (a.title || '').localeCompare(b.title || '');
+    }
   });
 
   return (
@@ -137,6 +181,17 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h3 className="text-xl font-bold tracking-tight text-primary font-headline">Resumo de Projetos e Demandas</h3>
             <div className="flex items-center gap-2">
+              <select 
+                  value={sortBy} 
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="text-sm font-semibold text-primary bg-surface-container-low px-3 py-1.5 rounded-lg border border-outline-variant/10 cursor-pointer outline-none focus:ring-1 focus:ring-primary/30 h-9"
+              >
+                  <option value="name">Nome</option>
+                  <option value="progress">Progresso</option>
+                  <option value="deadline">Prazo</option>
+                  <option value="completion">Conclusão</option>
+                  <option value="type">Tipo</option>
+              </select>
               <select 
                   value={typeFilter} 
                   onChange={(e) => setTypeFilter(e.target.value as any)}
@@ -188,11 +243,11 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                  </div>
                ))}
              </div>
-          ) : filteredDemands.length === 0 ? (
+          ) : sortedDemands.length === 0 ? (
              <div className="text-on-surface-variant text-sm p-4 text-center">Nenhuma demanda ativa.</div>
           ) : viewMode === 'cards' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredDemands.map((demand) => (
+              {sortedDemands.map((demand) => (
                 <div 
                   key={demand.id} 
                   className={`bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group cursor-pointer border-b-4 ${
@@ -229,14 +284,30 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                     </div>
                   </div>
                   <h4 className="font-bold text-lg mb-1 leading-tight font-headline">{demand.title}</h4>
+                  {getDeadlineStatus(demand) && (
+                    <div className={`mt-2 mb-3 px-3 py-1.5 rounded-lg border flex items-center gap-2 text-[11px] font-bold ${getDeadlineStatus(demand)?.color}`}>
+                      <span className="material-symbols-outlined text-[16px]">{getDeadlineStatus(demand)?.icon}</span>
+                      {getDeadlineStatus(demand)?.label}
+                    </div>
+                  )}
                   {demand.type === 'project' && (
                     <p className="text-sm text-on-surface-variant mb-6">Etapa: {(demand as any).currentStep?.label || 'Iniciado'}</p>
                   )}
-                  {demand.location && (
-                    <p className="text-xs font-semibold text-on-surface-variant mb-4 flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[14px]">location_on</span>
-                      {demand.location}
-                    </p>
+                  {(demand.location || demand.deadline || (demand.workflow_steps?.length > 0 && demand.workflow_steps[0].estimated_date)) && (
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-4">
+                      {demand.location && (
+                        <p className="text-xs font-semibold text-on-surface-variant flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[14px]">location_on</span>
+                          {demand.location}
+                        </p>
+                      )}
+                      {(demand.deadline || (demand.workflow_steps?.length > 0 && demand.workflow_steps[0].estimated_date)) && (
+                        <p className="text-xs font-bold text-primary flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[14px] text-on-surface-variant">calendar_month</span>
+                          Prazo: {demand.deadline_display}
+                        </p>
+                      )}
+                    </div>
                   )}
                   <div className="space-y-2 mt-4">
                     <div className="flex justify-between text-xs font-bold">
@@ -263,7 +334,7 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                        </tr>
                    </thead>
                    <tbody className="divide-y divide-outline-variant/10">
-                       {filteredDemands.map((demand) => (
+                       {sortedDemands.map((demand) => (
                            <tr 
                              key={demand.id} 
                              className="hover:bg-surface-container-low transition-colors cursor-pointer group" 
@@ -277,15 +348,23 @@ export default function DashboardView({ onEditDemand, searchQuery = '', userName
                                          <div className={`w-2.5 h-2.5 rounded-full ${demand.priority === 'critica' ? 'bg-red-600' : demand.priority === 'alta' ? 'bg-orange-500' : demand.priority === 'media' ? 'bg-blue-500' : 'bg-slate-400'}`}></div>
                                        )}
                                        <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${demand.status === 'concluido' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 'bg-secondary-container text-on-secondary-container'}`}>
-                                         {demand.type}
+                                         {demand.type} • {demand.status || 'aberto'}
                                        </div>
                                    </div>
                                </td>
                                <td className="px-6 py-4 font-bold text-primary max-w-sm truncate">
-                                   <div className="flex items-center gap-2">
-                                     {demand.title}
-                                     {currentUserId && demand.user_id && currentUserId !== demand.user_id && (
-                                        <Users size={14} className="text-primary opacity-70" title="Compartilhado por equipe" />
+                                   <div className="flex flex-col gap-1">
+                                     <div className="flex items-center gap-2">
+                                       {demand.title}
+                                       {currentUserId && demand.user_id && currentUserId !== demand.user_id && (
+                                          <Users size={14} className="text-primary opacity-70" title="Compartilhado por equipe" />
+                                       )}
+                                     </div>
+                                     {getDeadlineStatus(demand) && (
+                                       <div className={`w-fit px-2 py-0.5 rounded border flex items-center gap-1.5 text-[10px] font-black ${getDeadlineStatus(demand)?.color}`}>
+                                          <span className="material-symbols-outlined text-[14px]">{getDeadlineStatus(demand)?.icon}</span>
+                                          {getDeadlineStatus(demand)?.label}
+                                       </div>
                                      )}
                                    </div>
                                </td>

@@ -16,9 +16,10 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
     setError('');
 
     try {
+      const fullEmail = `${email.trim()}@weg.net`;
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: fullEmail,
           password,
           options: {
             data: {
@@ -31,7 +32,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
         setIsSignUp(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: fullEmail,
           password,
         });
         if (error) throw error;
@@ -83,7 +84,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
 
           <form onSubmit={handleAuth} className="flex flex-col gap-6">
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-semibold text-center border border-red-100">
+              <div className="bg-error-container/20 text-error p-3 rounded-lg text-sm font-semibold text-center border border-error/10">
                 {error}
               </div>
             )}
@@ -94,7 +95,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-4 text-outline text-xl">person</span>
                   <input 
-                    className="w-full bg-surface-container-low border-0 rounded-lg py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all duration-200" 
+                    className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all duration-200 outline-none" 
                     id="fullName" 
                     name="fullName" 
                     placeholder="João da Silva" 
@@ -109,30 +110,33 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
 
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-on-surface px-1" htmlFor="email">E-mail Corporativo</label>
-              <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-4 text-outline text-xl">alternate_email</span>
+              <div className="relative flex items-center group">
+                <span className="material-symbols-outlined absolute left-4 text-outline text-xl transition-colors group-focus-within:text-primary">alternate_email</span>
                 <input 
-                  className="w-full bg-surface-container-low border-0 rounded-lg py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all duration-200" 
+                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-4 pl-12 pr-24 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all duration-200 outline-none" 
                   id="email" 
                   name="email" 
-                  placeholder="nome@weg.net" 
-                  type="email"
+                  placeholder="ex: joao" 
+                  type="text"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value.split('@')[0])}
                   required
                 />
+                <div className="absolute right-4 text-on-surface-variant font-bold text-sm pointer-events-none bg-surface-container/50 px-2 py-1 rounded border border-outline-variant/10">
+                  @weg.net
+                </div>
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center px-1">
                 <label className="text-sm font-bold text-on-surface" htmlFor="password">Senha</label>
-                {!isSignUp && <a className="text-xs font-bold text-primary hover:text-primary-container transition-colors" href="#">Esqueceu a senha?</a>}
+                {!isSignUp && <a className="text-xs font-bold text-primary hover:opacity-80 transition-opacity" href="#">Esqueceu a senha?</a>}
               </div>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-4 text-outline text-xl">lock</span>
                 <input 
-                  className="w-full bg-surface-container-low border-0 rounded-lg py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all duration-200" 
+                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all duration-200 outline-none" 
                   id="password" 
                   name="password" 
                   placeholder="••••••••" 
@@ -152,7 +156,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
             )}
 
             <button 
-              className="w-full bg-primary text-white font-headline font-bold py-4 rounded-xl shadow-[0_8px_16px_-4px_rgba(0,63,108,0.3)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-lg mt-4 flex justify-center items-center gap-2 disabled:opacity-70" 
+              className="w-full bg-primary text-on-primary font-headline font-bold py-4 rounded-xl shadow-lg hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-lg mt-4 flex justify-center items-center gap-2 disabled:opacity-70" 
               type="submit"
               disabled={loading}
             >
@@ -173,7 +177,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
 
           <div className="mt-auto pt-16 pb-4 md:mt-24 text-center">
             <p className="text-[10px] uppercase tracking-widest text-outline font-bold">
-              © 2026 Luan Schappo.
+              © 2026 WEG - Todos os direitos reservados.
             </p>
             <div className="flex justify-center gap-4 mt-4">
               <a className="text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Termos de Uso</a>

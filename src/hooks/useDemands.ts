@@ -15,7 +15,8 @@ export type Demand = {
   has_steps: boolean;
   user_id?: string;
   creator_email?: string; // Novo campo
-  deadline?: string;     // Novo campo
+  deadline?: string;     // Prazo manual (ISO)
+  deadline_display?: string; // Prazo formatado para exibição
   location?: string;     // Novo campo Local
   network_path?: string; // Link ou Caminho de Rede
   is_public?: boolean;
@@ -88,36 +89,62 @@ export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
       const { data: progressData } = await supabase.from('demand_progress').select('*');
       const { data: stepsData } = await supabase
         .from('workflow_steps')
-        .select('demand_id, is_completed, label');
+        .select('demand_id, is_completed, label, estimated_date, completed_at')
+        .order('order_index', { ascending: false });
 
       const enriched: Demand[] = (demandsData || []).map(d => {
         const prog = progressData?.find((p: any) => p.demand_id === d.id);
-        const stepsForDemand = stepsData?.filter((s: any) => s.demand_id === d.id) || [];
+        const stepsForDemand = (stepsData?.filter((s: any) => s.demand_id === d.id) || []) as any[];
         
         // Calculate progress based on steps completion
         let calculatedProgress = 0;
+        let lastCompletedDate: Date | null = null;
+
         if (stepsForDemand.length > 0) {
-            const completed = stepsForDemand.filter(s => s.is_completed).length;
-            calculatedProgress = Math.round((completed / stepsForDemand.length) * 100);
+            const completed = stepsForDemand.filter(s => s.is_completed);
+            calculatedProgress = Math.round((completed.length / stepsForDemand.length) * 100);
+
+            completed.forEach(s => {
+                if (s.completed_at) {
+                    const date = new Date(s.completed_at);
+                    if (!lastCompletedDate || date > lastCompletedDate) lastCompletedDate = date;
+                }
+            });
         } else {
             // If completed manually (no steps), show 100%
-            if (d.status === 'concluido') {
+            if (d.status === 'concluido' || d.status === 'concluído') {
                 calculatedProgress = 100;
+                lastCompletedDate = d.updated_at ? new Date(d.updated_at) : new Date(); // fallback
             } else {
                 calculatedProgress = prog ? prog.percentage : 0;
             }
         }
 
         // Fetch current step label separately efficiently (for display)
-        const currentStep = stepsData?.find((s: any) => s.demand_id === d.id && !s.is_completed);
+        const currentStep = stepsForDemand.find((s: any) => !s.is_completed);
+
+        // Define prazo: prioriza o campo manual, senão usa a última etapa do workflow
+        let deadlineDisplay = 'Sem prazo definido';
+        if (d.deadline) {
+          deadlineDisplay = new Date(d.deadline).toLocaleDateString('pt-BR');
+        } else if (stepsForDemand.length > 0) {
+          // Última etapa (para pegar o prazo final do projeto/tarefa)
+          const lastStep = stepsForDemand[0]; // order_index desc
+          if (lastStep.estimated_date) {
+            deadlineDisplay = new Date(lastStep.estimated_date).toLocaleDateString('pt-BR');
+          }
+        }
 
         return {
           ...d,
           creator_email: d.creator_email || 'N/A',
+          deadline: d.deadline,
+          deadline_display: deadlineDisplay,
           progress: calculatedProgress,
           has_steps: stepsForDemand.length > 0,
-          currentStep: currentStep ? { label: currentStep.label, estimated_date: '' } : undefined,
-          workflow_steps: stepsForDemand
+          currentStep: currentStep ? { label: currentStep.label, estimated_date: currentStep.estimated_date || '' } : undefined,
+          workflow_steps: stepsForDemand,
+          completedDate: lastCompletedDate ? lastCompletedDate.toISOString() : undefined
         };
       });
 

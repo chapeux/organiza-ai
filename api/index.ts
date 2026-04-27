@@ -18,13 +18,20 @@ const getGroqClient = () => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', groqConfigured: !!process.env.GROQ_API_KEY });
+  console.log('Health check requested at:', new Date().toISOString());
+  res.json({ 
+    status: 'ok', 
+    groqConfigured: !!process.env.GROQ_API_KEY,
+    env: process.env.NODE_ENV
+  });
 });
 
 app.post('/api/groq/enhance', async (req, res) => {
+  console.log('Enhance request received:', req.body?.text?.substring(0, 20));
   try {
     const groq = getGroqClient();
     if (!groq) {
+      console.error('Groq API Key missing');
       return res.status(500).json({ error: 'Erro: A chave GROQ_API_KEY não configurada.' });
     }
 

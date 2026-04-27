@@ -7,12 +7,60 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
   const [filterTitle, setFilterTitle] = React.useState('');
   const [filterEmail, setFilterEmail] = React.useState('');
   const [filterStatus, setFilterStatus] = React.useState('todos');
+  const [sortBy, setSortBy] = React.useState<'name' | 'progress' | 'completion' | 'type' | 'deadline'>('deadline');
+
+  const getDeadlineStatus = (demand: any) => {
+    if (demand.status === 'concluido' || demand.status === 'concluído') return null;
+    
+    let dateStr = demand.deadline;
+    
+    if (!dateStr) {
+      dateStr = demand.currentStep?.estimated_date;
+    }
+
+    if (!dateStr && demand.workflow_steps?.length > 0) {
+      const lastStep = demand.workflow_steps[0];
+      dateStr = lastStep.estimated_date;
+    }
+    if (!dateStr) return null;
+
+    const deadline = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    deadline.setHours(0, 0, 0, 0);
+    const diffTime = deadline.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return { type: 'expired', label: 'Vencido', color: 'text-red-700 bg-red-50 border-red-200' };
+    if (diffDays <= 5) return { type: 'warning', label: `Expira em ${diffDays} ${diffDays === 1 ? 'dia' : 'dias'}`, color: 'text-orange-700 bg-orange-50 border-orange-200' };
+    return null;
+  };
 
   const filteredDemands = demands.filter(d => {
       const matchTitle = d.title.toLowerCase().includes(filterTitle.toLowerCase());
       const matchEmail = (d.creator_email || '').toLowerCase().includes(filterEmail.toLowerCase());
       const matchStatus = filterStatus === 'todos' ? true : d.status === filterStatus;
       return matchTitle && matchEmail && matchStatus;
+  });
+
+  const sortedDemands = [...filteredDemands].sort((a, b) => {
+    switch (sortBy) {
+        case 'progress':
+            return (b.progress || 0) - (a.progress || 0);
+        case 'completion':
+            const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
+            const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
+            return dateB - dateA;
+        case 'deadline':
+            const deadlineA = a.deadline ? new Date(a.deadline).getTime() : (a.currentStep?.estimated_date ? new Date(a.currentStep.estimated_date).getTime() : Infinity);
+            const deadlineB = b.deadline ? new Date(b.deadline).getTime() : (b.currentStep?.estimated_date ? new Date(b.currentStep.estimated_date).getTime() : Infinity);
+            return deadlineA - deadlineB;
+        case 'type':
+            return (a.type || '').localeCompare(b.type || '');
+        case 'name':
+        default:
+            return (a.title || '').localeCompare(b.title || '');
+    }
   });
 
   if (loading) {
@@ -55,6 +103,17 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
                 <option value="em andamento" className="bg-surface-container-lowest">Em Andamento</option>
                 <option value="concluido" className="bg-surface-container-lowest">Concluído</option>
             </select>
+            <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-4 py-2 bg-surface-container rounded-lg border border-outline-variant/30 text-sm font-bold text-primary focus:ring-1 focus:ring-primary outline-none cursor-pointer"
+            >
+                <option value="name" className="bg-surface-container-lowest">Ordenar por Nome</option>
+                <option value="progress" className="bg-surface-container-lowest">Ordenar por Progresso</option>
+                <option value="deadline" className="bg-surface-container-lowest">Ordenar por Prazo</option>
+                <option value="completion" className="bg-surface-container-lowest">Ordenar por Conclusão</option>
+                <option value="type" className="bg-surface-container-lowest">Ordenar por Tipo</option>
+            </select>
         </div>
       </header>
 
@@ -70,7 +129,7 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/10">
-            {filteredDemands.map((demand) => (
+            {sortedDemands.map((demand) => (
               <tr 
                 key={demand.id} 
                 className="hover:bg-surface-container-low transition-colors cursor-pointer"
@@ -78,7 +137,16 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
               >
                 <td className="px-6 py-4 font-bold text-primary">{demand.title}</td>
                 <td className="px-6 py-4 text-on-surface-variant">{demand.creator_email}</td>
-                <td className="px-6 py-4 text-on-surface-variant">{demand.deadline}</td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-on-surface-variant font-medium">{demand.deadline_display}</span>
+                    {getDeadlineStatus(demand) && (
+                      <span className={`w-fit px-2 py-0.5 rounded border text-[10px] font-black ${getDeadlineStatus(demand)?.color}`}>
+                        {getDeadlineStatus(demand)?.label}
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-6 py-4 font-medium capitalize">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs ${
                     demand.status === 'concluido' ? 'bg-primary/20 text-primary' :

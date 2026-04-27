@@ -9,25 +9,24 @@ interface TeamViewProps {
   searchQuery: string;
   onEditDemand: (demand: any) => void;
   onViewDemand: (demand: any) => void;
+  currentUser: any;
 }
 
-export default function TeamView({ searchQuery, onEditDemand, onViewDemand }: TeamViewProps) {
+export default function TeamView({ searchQuery, onEditDemand, onViewDemand, currentUser }: TeamViewProps) {
   const [demands, setDemands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [memberOfIds, setMemberOfIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentUser?.id]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data: userData } = await supabase.auth.getUser();
-      setCurrentUser(userData.user);
+      const user = currentUser;
 
-      const userEmail = userData.user?.email;
+      const userEmail = user?.email;
       let teamDemandIds: string[] = [];
       if (userEmail) {
         const { data: teamMembers } = await supabase
@@ -43,7 +42,7 @@ export default function TeamView({ searchQuery, onEditDemand, onViewDemand }: Te
       let query = supabase
         .from('demands_with_email')
         .select('*')
-        .neq('user_id', userData.user?.id);
+        .neq('user_id', user?.id);
 
       if (teamDemandIds.length > 0) {
         query = query.or(`is_public.eq.true,id.in.(${teamDemandIds.join(',')})`);

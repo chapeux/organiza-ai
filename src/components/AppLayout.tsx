@@ -140,13 +140,13 @@ export default function AppLayout({ session }: { session?: any }) {
           </div>
         </header>
 
-        {activeTab === 'painel' && <DashboardView onEditDemand={handleEditDemand} searchQuery={searchQuery} userName={userName} />}
-        {activeTab === 'equipe' && <TeamView onEditDemand={handleEditDemand} onViewDemand={handleViewDemand} searchQuery={searchQuery} />}
+        {activeTab === 'painel' && <DashboardView onEditDemand={handleEditDemand} searchQuery={searchQuery} userName={userName} currentUserId={session?.user?.id} />}
+        {activeTab === 'equipe' && <TeamView currentUser={session?.user} onEditDemand={handleEditDemand} onViewDemand={handleViewDemand} searchQuery={searchQuery} />}
         {activeTab === 'gestao' && isGestor && <ManagerDashboardView onViewDemand={handleViewDemand} />}
         {activeTab === 'perfil' && <ProfileView session={session} />}
         {activeTab === 'relatorios' && <ReportsView isGestor={isGestor} />}
         {activeTab === 'visualizar_demanda' && viewingDemand && <EditDemandView key={`view-${viewingDemand.id}`} demand={viewingDemand} onBack={() => setActiveTab('equipe')} readOnly />}
-        {activeTab === 'nova_demanda' && <CreateDemandView onBack={() => setActiveTab('painel')} />}
+        {activeTab === 'nova_demanda' && <CreateDemandView session={session} onBack={() => setActiveTab('painel')} />}
         {activeTab === 'editar_demanda' && editingDemand && <EditDemandView key={`edit-${editingDemand.id}`} demand={editingDemand} onBack={() => setActiveTab('painel')} />}
 
         {/* FAB */}
