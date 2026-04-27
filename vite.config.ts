@@ -10,6 +10,9 @@ export default defineConfig(({mode}) => {
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
+    optimizeDeps: {
+      include: ['@hello-pangea/dnd'],
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
