@@ -133,7 +133,7 @@ export default function ReportsView({ isGestor = false }: { isGestor?: boolean }
     doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm")}`, 14, 36);
 
     // Table
-    const tableColumn = ["Título", "Data Criação", "Data Conclusão", "Status", "Prioridade", "Local/Unidade", "Link/Caminho", "Progresso"];
+    const tableColumn = ["Título", "Data Criação", "Data Conclusão", "Status", "Prioridade", "Local/Unidade", "Link", "Progresso"];
     const tableRows: any[] = [];
 
     listToPrint.forEach(demand => {
@@ -144,7 +144,7 @@ export default function ReportsView({ isGestor = false }: { isGestor?: boolean }
         (demand.status || 'Aberto').toUpperCase(),
         demand.priority.toUpperCase(),
         demand.location || '-',
-        demand.network_path || '-',
+        demand.network_path ? 'LINK' : '-',
         `${demand.progress || 0}%`
       ];
       tableRows.push(demandData);
@@ -154,9 +154,26 @@ export default function ReportsView({ isGestor = false }: { isGestor?: boolean }
       head: [tableColumn],
       body: tableRows,
       startY: 42,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [0, 63, 108], textColor: 255 },
+      styles: { fontSize: 8, cellPadding: 3, valign: 'middle' },
+      headStyles: { fillColor: [0, 63, 108], textColor: 255, halign: 'center' },
       alternateRowStyles: { fillColor: [240, 244, 248] },
+      columnStyles: {
+        0: { cellWidth: 80 }, // Título
+        1: { halign: 'center' },
+        2: { halign: 'center' },
+        3: { halign: 'center' },
+        4: { halign: 'center' },
+        6: { halign: 'center', textColor: [0, 102, 204], fontStyle: 'bold' }, // Link
+        7: { halign: 'center' },
+      },
+      didDrawCell: (data) => {
+        if (data.column.index === 6 && data.cell.section === 'body') {
+          const demand = listToPrint[data.row.index];
+          if (demand.network_path && data.cell.text[0] === 'LINK') {
+            doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: demand.network_path });
+          }
+        }
+      }
     });
 
     doc.save(`Relatorio_Demandas_${format(new Date(), 'yyyyMMdd_HHmm')}.pdf`);
