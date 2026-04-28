@@ -149,9 +149,9 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
                 <td className="px-6 py-4 font-bold text-primary">{demand.title}</td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                    demand.type === 'project' ? 'bg-primary/10 text-primary' : 
-                    demand.type === 'task' ? 'bg-slate-100 text-slate-600' : 
-                    'bg-purple-100 text-purple-600'
+                    demand.type === 'project' ? 'bg-blue-100 text-blue-700' : 
+                    demand.type === 'task' ? 'bg-slate-100 text-slate-700' : 
+                    'bg-purple-100 text-purple-700'
                   }`}>
                     {getTypeName(demand.type)}
                   </span>
