@@ -49,15 +49,19 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
     <main className="min-h-screen flex flex-col md:flex-row bg-surface font-body text-on-surface">
       <section className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-primary">
         <div className="absolute inset-0 z-0">
-          <img 
-            alt="Indústria Inteligente" 
-            className="w-full h-full object-cover opacity-30" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuANRvERpA-gDokX5ACJgTj4RT5xsurFkpsegTNeYtgw3yIJQf6Cr3Xw2mTfvuc7_3_6yk2PfQCgIBISqprGLJh4HcjCPNNyyvStBb3FmNPG9bLtQ-2X-MKWaD7NClBhzXm2GfBOi-S29AMHiFWTJvJ3RLuHbwC8f6EmVs8oHN201s7WhRZPfkklvMacrA2KDnShbir3BZA4JnKRFIzmaxhP4u9HXOTSjbS2fUZZKbZKBFUEjk0kUTgN-DyOtnyBrvuAG_TMju5jtsk"
+          <iframe
+            className="absolute top-1/2 left-1/2 w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50"
+            src="https://www.youtube.com/embed/Pj3IZwIn6T0?autoplay=1&mute=1&loop=1&playlist=Pj3IZwIn6T0&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+            title="Video de fundo"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-tr from-[#002f54] via-[#003f6c]/80 to-transparent z-10"></div>
         <div className="relative z-20 flex flex-col justify-center p-16 w-full h-full">
           <div className="max-w-xl">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/WEG_Equipamentos_El%C3%A9tricos.svg/1280px-WEG_Equipamentos_El%C3%A9tricos.svg.png" alt="WEG Logo" className="h-24 object-contain mb-8 brightness-0 invert" />
             <h1 className="font-headline text-5xl lg:text-7xl font-extrabold text-white tracking-tight leading-tight mb-8">
               Organize suas tarefas com maestria.
             </h1>
@@ -71,8 +75,8 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
       <section className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-8 bg-surface-container-lowest">
         <div className="w-full max-w-md flex flex-col">
           <div className="mb-12 flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/WEG_Equipamentos_El%C3%A9tricos.svg/1280px-WEG_Equipamentos_El%C3%A9tricos.svg.png" alt="WEG Logo" className="h-10 object-contain" />
+            <div className="flex flex-col gap-3">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/WEG_Equipamentos_El%C3%A9tricos.svg/1280px-WEG_Equipamentos_El%C3%A9tricos.svg.png" alt="WEG Logo" className="h-10 object-contain brightness-0 invert" />
               <span className="font-headline font-extrabold text-2xl text-primary tracking-tighter">WEG Synergy</span>
             </div>
             <p className="text-on-surface-variant text-sm mt-4 font-medium">
