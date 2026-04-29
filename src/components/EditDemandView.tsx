@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'motion/react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import CommentSection from './CommentSection';
 
 interface EditDemandViewProps {
   key?: React.Key;
@@ -381,6 +382,16 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
             <h2 className="text-4xl font-extrabold font-headline tracking-tight text-primary uppercase">
               {demand.title}
             </h2>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
+              <div className="flex items-center gap-1.5 text-on-surface-variant font-medium text-xs uppercase tracking-widest bg-surface-container-low px-3 py-1 rounded-full border border-outline-variant/10">
+                <span className="material-symbols-outlined text-sm">event</span>
+                <span>Criado em: {new Date(demand.created_at).toLocaleDateString('pt-BR')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-primary font-bold text-xs uppercase tracking-widest bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                <span className="material-symbols-outlined text-sm">person</span>
+                <span>Criador: {demand.creator_email}</span>
+              </div>
+            </div>
             <div className="flex items-center gap-4 mt-4">
               <span className={`px-3 py-1 rounded-full text-xs font-bold font-label uppercase tracking-wider ${
                 derivedStatus === 'concluido' 
@@ -794,6 +805,8 @@ export default function EditDemandView({ demand, onBack, readOnly = false }: Edi
               )}
             </div>
           </section>
+
+          <CommentSection demandId={demand.id} />
           
         </div>
       </div>
