@@ -952,18 +952,52 @@ export default function EditDemandView({
                                         <span className="material-symbols-outlined text-sm font-bold">
                                           check_circle
                                         </span>
-                                        <span className="text-[11px] font-bold uppercase tracking-wider">
-                                          Concluído em:{" "}
-                                          {step.completed_at
-                                            ? format(
-                                                new Date(step.completed_at),
-                                                "dd/MM/yyyy 'às' HH:mm",
-                                              )
-                                            : format(
-                                                new Date(),
-                                                "dd/MM/yyyy 'às' HH:mm",
-                                              )}
+                                        <span className="text-[11px] font-bold uppercase tracking-wider hidden sm:inline">
+                                          Concluído em:
                                         </span>
+                                        <input
+                                          type="datetime-local"
+                                          disabled={readOnly}
+                                          value={
+                                            step.completed_at
+                                              ? format(
+                                                  new Date(step.completed_at),
+                                                  "yyyy-MM-dd'T'HH:mm",
+                                                )
+                                              : format(
+                                                  new Date(),
+                                                  "yyyy-MM-dd'T'HH:mm",
+                                                )
+                                          }
+                                          onChange={async (e) => {
+                                            const newDate = e.target.value;
+                                            setSteps(
+                                              steps.map((s) =>
+                                                s.id === step.id
+                                                  ? {
+                                                      ...s,
+                                                      completed_at: newDate
+                                                        ? new Date(
+                                                            newDate,
+                                                          ).toISOString()
+                                                        : null,
+                                                    }
+                                                  : s,
+                                              ),
+                                            );
+                                            await supabase
+                                              .from("workflow_steps")
+                                              .update({
+                                                completed_at: newDate
+                                                  ? new Date(
+                                                      newDate,
+                                                    ).toISOString()
+                                                  : null,
+                                              })
+                                              .eq("id", step.id);
+                                          }}
+                                          className="bg-transparent border-none p-0 text-[11px] font-bold uppercase tracking-wider min-w-[130px] cursor-pointer focus:ring-0 text-primary"
+                                        />
                                       </>
                                     ) : (
                                       <>
