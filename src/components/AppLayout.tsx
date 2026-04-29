@@ -62,8 +62,11 @@ export default function AppLayout({ session }: { session?: any }) {
       {/* SideNavBar */}
       <aside className="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant/20 bg-surface-container-low flex flex-col py-6 z-40 hidden md:flex">
         <div className="px-6 mb-10 cursor-pointer" onClick={() => setActiveTab('painel')}>
-          <h1 className="font-black text-primary text-xl tracking-tight">WEG Synergy</h1>
-          <p className="text-xs text-on-surface-variant font-medium truncate" title={userName}>
+          <div className="flex items-center gap-2">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/WEG_Equipamentos_El%C3%A9tricos.svg/1280px-WEG_Equipamentos_El%C3%A9tricos.svg.png" alt="WEG Logo" className="h-6 object-contain" />
+            <h1 className="font-black text-primary text-xl tracking-tight">Synergy</h1>
+          </div>
+          <p className="text-xs text-on-surface-variant font-medium truncate mt-1" title={userName}>
             {userName}
           </p>
         </div>
