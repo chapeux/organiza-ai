@@ -72,9 +72,7 @@ export default function LoginView({ onLoginSuccess }: { onLoginSuccess: () => vo
         <div className="w-full max-w-md flex flex-col">
           <div className="mb-12 flex flex-col gap-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-lg shadow-md">
-                <span className="material-symbols-outlined text-white font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>task_alt</span>
-              </div>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/WEG_Equipamentos_El%C3%A9tricos.svg/1280px-WEG_Equipamentos_El%C3%A9tricos.svg.png" alt="WEG Logo" className="h-10 object-contain" />
               <span className="font-headline font-extrabold text-2xl text-primary tracking-tighter">WEG Synergy</span>
             </div>
             <p className="text-on-surface-variant text-sm mt-4 font-medium">

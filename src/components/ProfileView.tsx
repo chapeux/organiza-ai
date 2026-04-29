@@ -109,10 +109,8 @@ export default function ProfileView({ session }: { session: any }) {
     <div className="max-w-7xl mx-auto p-4 md:p-8 w-full pb-24 md:pb-8">
       <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-4 md:mb-6">
-            <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
-              <HardHat size={20} />
-            </div>
+          <div className="flex items-center gap-4 mb-4 md:mb-6">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/WEG_Equipamentos_El%C3%A9tricos.svg/1280px-WEG_Equipamentos_El%C3%A9tricos.svg.png" alt="WEG Logo" className="h-8 object-contain" />
             <div>
               <h1 className="font-headline font-extrabold text-primary leading-tight">WEG Synergy</h1>
               <p className="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Painel de Controle</p>
