@@ -188,26 +188,26 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
         <div className="max-w-4xl mx-auto space-y-6">
           
           {/* Type Selector Card */}
-          <div className="bg-surface-container-lowest p-6 rounded-xl shadow-none border-0 ring-1 ring-outline-variant/15">
+          <div className="bg-surface-container-lowest dark:bg-neutral-900/50 p-6 rounded-xl shadow-none border-0 ring-1 ring-outline-variant/15 dark:ring-white/10">
             <h3 className="text-sm font-bold text-primary mb-4 uppercase tracking-wider font-headline text-center sm:text-left">Tipo de Demanda</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <button 
                 onClick={() => setType('task')}
-                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${type === 'task' ? 'border-primary bg-primary/5' : 'border-transparent bg-surface-container-low hover:bg-surface-variant'}`}
+                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${type === 'task' ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-transparent bg-surface-container-low hover:bg-surface-variant dark:bg-neutral-800/50 dark:hover:bg-neutral-800'}`}
               >
                 <span className={`material-symbols-outlined text-3xl ${type === 'task' ? 'text-primary' : 'text-on-surface-variant'}`}>task</span>
                 <span className={`text-sm ${type === 'task' ? 'font-bold text-primary' : 'font-semibold text-on-surface-variant'}`}>Tarefa</span>
               </button>
               <button 
                 onClick={() => setType('project')}
-                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${type === 'project' ? 'border-primary bg-primary/5' : 'border-transparent bg-surface-container-low hover:bg-surface-variant'}`}
+                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${type === 'project' ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-transparent bg-surface-container-low hover:bg-surface-variant dark:bg-neutral-800/50 dark:hover:bg-neutral-800'}`}
               >
                 <span className={`material-symbols-outlined text-3xl ${type === 'project' ? 'text-primary' : 'text-on-surface-variant'}`}>account_tree</span>
                 <span className={`text-sm ${type === 'project' ? 'font-bold text-primary' : 'font-semibold text-on-surface-variant'}`}>Projeto</span>
               </button>
               <button 
                 onClick={() => setType('ticket')}
-                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${type === 'ticket' ? 'border-primary bg-primary/5' : 'border-transparent bg-surface-container-low hover:bg-surface-variant'}`}
+                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${type === 'ticket' ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-transparent bg-surface-container-low hover:bg-surface-variant dark:bg-neutral-800/50 dark:hover:bg-neutral-800'}`}
               >
                 <span className={`material-symbols-outlined text-3xl ${type === 'ticket' ? 'text-primary' : 'text-on-surface-variant'}`}>confirmation_number</span>
                 <span className={`text-sm ${type === 'ticket' ? 'font-bold text-primary' : 'font-semibold text-on-surface-variant'}`}>Chamado</span>
@@ -216,10 +216,10 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
           </div>
 
           {/* Priority Selection Card - Moved Here */}
-          <div className="bg-surface-container-lowest p-6 rounded-xl shadow-none ring-1 ring-outline-variant/15">
+          <div className="bg-surface-container-lowest dark:bg-neutral-900/50 p-6 rounded-xl shadow-none ring-1 ring-outline-variant/15 dark:ring-white/10">
             <h3 className="text-sm font-bold text-primary mb-4 uppercase tracking-wider font-headline">Nível de Prioridade</h3>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'baixa' ? 'border-outline bg-outline/5' : 'border-transparent bg-surface-container-low hover:bg-surface-variant'}`}>
+              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'baixa' ? 'border-outline bg-outline/5 dark:border-outline/50 dark:bg-outline/10' : 'border-transparent bg-surface-container-low hover:bg-surface-variant dark:bg-neutral-800/50 dark:hover:bg-neutral-800'}`}>
                 <input 
                   className="sr-only" 
                   name="priority" 
@@ -232,7 +232,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                 <span className={`text-sm ${priority === 'baixa' ? 'font-bold text-on-surface' : 'font-medium text-on-surface-variant'}`}>Baixa</span>
               </label>
 
-              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'media' ? 'border-blue-500 bg-blue-500/5' : 'border-transparent bg-surface-container-low hover:bg-surface-variant'}`}>
+              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'media' ? 'border-blue-500 bg-blue-500/5 dark:border-blue-500/50 dark:bg-blue-500/10' : 'border-transparent bg-surface-container-low hover:bg-surface-variant dark:bg-neutral-800/50 dark:hover:bg-neutral-800'}`}>
                 <input 
                   className="sr-only" 
                   name="priority" 
@@ -245,7 +245,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                 <span className={`text-sm ${priority === 'media' ? 'font-bold text-on-surface' : 'font-medium text-on-surface-variant'}`}>Média</span>
               </label>
 
-              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'alta' ? 'border-orange-500 bg-orange-500/5' : 'border-transparent bg-surface-container-low hover:bg-surface-variant'}`}>
+              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'alta' ? 'border-orange-500 bg-orange-500/5 dark:border-orange-500/50 dark:bg-orange-500/10' : 'border-transparent bg-surface-container-low hover:bg-surface-variant dark:bg-neutral-800/50 dark:hover:bg-neutral-800'}`}>
                 <input 
                   className="sr-only" 
                   name="priority" 
@@ -258,7 +258,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                 <span className={`text-sm ${priority === 'alta' ? 'font-bold text-on-surface' : 'font-medium text-on-surface-variant'}`}>Alta</span>
               </label>
 
-              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'critica' ? 'border-error bg-error/5' : 'border-transparent bg-surface-container-low hover:bg-surface-variant'}`}>
+              <label className={`flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${priority === 'critica' ? 'border-error bg-error/5 dark:border-error/50 dark:bg-error/10' : 'border-transparent bg-surface-container-low hover:bg-surface-variant dark:bg-neutral-800/50 dark:hover:bg-neutral-800'}`}>
                 <input 
                   className="sr-only" 
                   name="priority" 
@@ -274,11 +274,11 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
           </div>
 
           {/* Form Basic Data */}
-          <div className="bg-surface-container-lowest p-8 rounded-xl shadow-none ring-1 ring-outline-variant/15 space-y-6">
+          <div className="bg-surface-container-lowest dark:bg-neutral-900/50 p-8 rounded-xl shadow-none ring-1 ring-outline-variant/15 dark:ring-white/10 space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Título da Demanda</label>
                 <input 
-                  className="w-full bg-surface-container-low border-0 rounded-lg p-4 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                  className="w-full bg-surface-container-low dark:bg-neutral-800 dark:border-white/5 border border-transparent rounded-lg p-4 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
                   placeholder="Ex: Otimização de Resfriamento - Linha 04" 
                   type="text"
                   value={title}
@@ -290,8 +290,8 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Número do Chamado (ID)</label>
                   <input 
-                    className="w-full bg-surface-container-low border-0 rounded-lg p-4 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
-                    placeholder="Ex: #CH-2023-089" 
+                    className="w-full bg-surface-container-low dark:bg-neutral-800 dark:border-white/5 border border-transparent rounded-lg p-4 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                    placeholder="Ex: RITM1827461" 
                     type="text"
                     value={ticketCode}
                     onChange={e => setTicketCode(e.target.value)}
@@ -304,7 +304,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                 <div className="relative flex items-center">
                   <MapPin className="absolute left-4 text-on-surface-variant" size={18} />
                   <input 
-                    className="w-full bg-surface-container-low border-0 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                    className="w-full bg-surface-container-low dark:bg-neutral-800 dark:border-white/5 border border-transparent rounded-lg p-4 pl-12 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
                     placeholder="Ex: WEG Itajaí, Seção Expedição..." 
                     type="text"
                     value={location}
@@ -333,7 +333,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-4 text-on-surface-variant">link</span>
                   <input 
-                    className="w-full bg-surface-container-low border-0 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                    className="w-full bg-surface-container-low dark:bg-neutral-800 dark:border-white/5 border border-transparent rounded-lg p-4 pl-12 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
                     placeholder="Ex: P:\Engenharia\Projetos\Linha04 ou https://weg.sharepoint.com/..." 
                     type="text"
                     value={networkPath}
@@ -347,7 +347,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-4 text-on-surface-variant">event</span>
                   <input 
-                    className="w-full bg-surface-container-low border-0 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                    className="w-full bg-surface-container-low dark:bg-neutral-800 dark:border-white/5 border border-transparent rounded-lg p-4 pl-12 focus:ring-2 focus:ring-primary text-on-surface transition-all" 
                     type="date"
                     value={deadline}
                     onChange={e => setDeadline(e.target.value)}
@@ -357,7 +357,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
 
               <div className="space-y-4">
                 <label className="text-xs font-bold text-primary uppercase tracking-widest px-1 font-headline">Privacidade e Equipe</label>
-                <div className="bg-surface-container-low p-4 rounded-xl space-y-4">
+                <div className="bg-surface-container-low dark:bg-neutral-800/50 p-4 rounded-xl space-y-4 border border-transparent dark:border-white/5">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-sm font-bold text-on-surface">Demanda Pública</h4>
@@ -372,7 +372,7 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                   <div className="pt-2">
                     <label className="text-xs font-semibold text-on-surface">Adicionar email de membros da equipe (separados por vírgula)</label>
                     <input 
-                      className="w-full mt-1 bg-surface-container border-0 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary text-on-surface transition-all" 
+                      className="w-full mt-1 bg-surface-container dark:bg-neutral-900 border border-transparent dark:border-white/5 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary text-on-surface transition-all" 
                       placeholder="joao@weg.net, maria@weg.net" 
                       type="text"
                       value={teamEmails}
@@ -389,14 +389,14 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                   <button 
                     onClick={handleEnhance}
                     disabled={!description || isEnhancing}
-                    className="text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors disabled:opacity-50"
                   >
                     {isEnhancing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                     Melhorar com IA
                   </button>
                 </div>
                 <textarea 
-                  className="w-full bg-surface-container-low border-0 rounded-lg p-4 focus:ring-2 focus:ring-primary text-on-surface transition-all resize-none" 
+                  className="w-full bg-surface-container-low dark:bg-neutral-800 dark:border-white/5 border border-transparent rounded-lg p-4 focus:ring-2 focus:ring-primary text-on-surface transition-all resize-none" 
                   placeholder="Descreva os requisitos técnicos e objetivos desta demanda..." 
                   rows={6}
                   value={description}
@@ -407,14 +407,14 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
 
             {/* Workflow Section */}
             {(type === 'task' || type === 'project') && (
-              <div className="bg-surface-container-lowest p-8 rounded-xl shadow-none ring-1 ring-outline-variant/15">
+              <div className="bg-surface-container-lowest dark:bg-neutral-900/50 p-8 rounded-xl shadow-none ring-1 ring-outline-variant/15 dark:ring-white/10">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-sm font-bold text-primary uppercase tracking-wider font-headline">Configuração de Fluxo (Workflow)</h3>
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={handleSuggestWorkflow}
                       disabled={!title || isSuggesting}
-                      className="text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                      className="text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors disabled:opacity-50"
                     >
                       {isSuggesting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                       GERAR COM IA
@@ -435,12 +435,12 @@ export default function CreateDemandView({ session, onBack }: { session: any, on
                     steps.map((step, idx) => (
                       <div key={step.id} className="flex gap-4 items-start group">
                         <div className="mt-1 flex flex-col items-center gap-1">
-                          <div className={`w-8 h-8 rounded-full ${idx === 0 ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-highest text-on-surface-variant'} flex items-center justify-center font-bold text-xs font-headline`}>
+                          <div className={`w-8 h-8 rounded-full ${idx === 0 ? 'bg-primary-container text-on-primary-container dark:bg-primary dark:text-on-primary' : 'bg-surface-container-highest text-on-surface-variant dark:bg-neutral-800 dark:text-neutral-400'} flex items-center justify-center font-bold text-xs font-headline`}>
                             {String(idx + 1).padStart(2, '0')}
                           </div>
-                          {idx !== steps.length - 1 && <div className="w-0.5 h-12 bg-surface-container-highest"></div>}
+                          {idx !== steps.length - 1 && <div className="w-0.5 h-12 bg-surface-container-highest dark:bg-neutral-800"></div>}
                         </div>
-                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface-container-low p-4 rounded-lg relative">
+                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface-container-low dark:bg-neutral-800/80 p-4 rounded-lg relative border border-transparent dark:border-white/5">
                           <input 
                             className="bg-transparent border-0 font-semibold p-0 focus:ring-0 text-sm" 
                             type="text" 

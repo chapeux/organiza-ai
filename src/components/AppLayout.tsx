@@ -11,6 +11,7 @@ import ProfileView from './ProfileView';
 import ReportsView from './ReportsView';
 import ManagerDashboardView from './ManagerDashboardView';
 import TeamView from './TeamView';
+import NotificationBell from './NotificationBell';
 import { LayoutDashboard, CheckSquare, Briefcase, Ticket, LineChart, HelpCircle, LogOut, Search, Moon, Sun, Settings, Plus, User, ShieldCheck, Users } from 'lucide-react';
 
 export default function AppLayout({ session }: { session?: any }) {
@@ -117,6 +118,7 @@ export default function AppLayout({ session }: { session?: any }) {
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-4 pl-2">
+            <NotificationBell userId={session?.user?.id} />
             <button
               onClick={toggleTheme}
               className="p-2 text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95 duration-150"

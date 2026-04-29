@@ -146,14 +146,14 @@ export default function DashboardView({
       return {
         type: "expired",
         label: "Vencido",
-        color: "text-red-700 bg-red-50 border-red-200",
+        color: "text-red-700 bg-red-50 border-red-200 dark:text-red-300 dark:bg-red-500/20 dark:border-red-500/30",
         icon: "error",
       };
     if (diffDays <= 5)
       return {
         type: "warning",
         label: `Expira em ${diffDays} ${diffDays === 1 ? "dia" : "dias"}`,
-        color: "text-orange-700 bg-orange-50 border-orange-200",
+        color: "text-orange-700 bg-orange-50 border-orange-200 dark:text-orange-300 dark:bg-orange-500/20 dark:border-orange-500/30",
         icon: "running_with_errors",
       };
     return null;
@@ -329,7 +329,7 @@ export default function DashboardView({
               {sortedDemands.map((demand) => (
                 <div
                   key={demand.id}
-                  className={`bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group cursor-pointer border-b-4 ${
+                  className={`bg-surface-container-lowest dark:bg-neutral-900/80 p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all group cursor-pointer border-b-4 dark:border-t dark:border-x dark:border-white/5 ${
                     demand.type === "project"
                       ? "border-primary"
                       : demand.type === "task"
@@ -355,10 +355,10 @@ export default function DashboardView({
                       <div
                         className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
                           demand.type === "project"
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
                             : demand.type === "task"
-                              ? "bg-slate-100 text-slate-700"
-                              : "bg-purple-100 text-purple-700"
+                              ? "bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-300"
+                              : "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
                         }`}
                       >
                         {getTypeName(demand.type)} •{" "}
@@ -501,10 +501,10 @@ export default function DashboardView({
                           <div
                             className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
                               demand.type === "project"
-                                ? "bg-blue-100 text-blue-700"
+                                ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
                                 : demand.type === "task"
-                                  ? "bg-slate-100 text-slate-700"
-                                  : "bg-purple-100 text-purple-700"
+                                  ? "bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-300"
+                                  : "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
                             }`}
                           >
                             {getTypeName(demand.type)} •{" "}
