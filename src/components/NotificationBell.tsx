@@ -14,7 +14,7 @@ interface Notification {
   created_at: string;
 }
 
-export default function NotificationBell({ userId }: { userId?: string }) {
+export default function NotificationBell({ userId, onViewDemand }: { userId?: string, onViewDemand: (demandId: string) => void }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -86,11 +86,18 @@ export default function NotificationBell({ userId }: { userId?: string }) {
     await supabase.rpc('check_and_create_deadline_notifications');
   };
 
-  const markAsRead = async (id: string) => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', id);
+  const markAsRead = async (notification: Notification) => {
+    if (!notification.is_read) {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notification.id);
+    }
+    
+    if (notification.demand_id) {
+        setIsOpen(false);
+        onViewDemand(notification.demand_id);
+    }
   };
 
   const markAllAsRead = async () => {
@@ -105,6 +112,8 @@ export default function NotificationBell({ userId }: { userId?: string }) {
 
   const deleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    // Optimistic update
+    setNotifications(prev => prev.filter(n => n.id !== id));
     await supabase
       .from('notifications')
       .delete()
@@ -161,7 +170,7 @@ export default function NotificationBell({ userId }: { userId?: string }) {
               notifications.map(notification => (
                 <div 
                   key={notification.id} 
-                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                  onClick={() => markAsRead(notification)}
                   className={`p-3 rounded-lg flex gap-3 group relative cursor-pointer mb-1 transition-colors ${notification.is_read ? 'hover:bg-surface-container-low' : 'bg-primary/5 border border-primary/20 hover:bg-primary/10'}`}
                 >
                   {!notification.is_read && (

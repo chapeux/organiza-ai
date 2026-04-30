@@ -51,6 +51,17 @@ export default function AppLayout({ session }: { session?: any }) {
     await supabase.auth.signOut();
   };
 
+  const onViewNotificationDemand = async (demandId: string) => {
+    const { data: demand, error } = await supabase
+      .from('demands')
+      .select('*')
+      .eq('id', demandId)
+      .single();
+    if (demand) {
+      handleViewDemand(demand);
+    }
+  };
+
   const userName = session?.user?.user_metadata?.full_name || (session?.user?.email ? session.user.email.split('@')[0] : 'Arquiteto Industrial');
   const userRole = session?.user?.user_metadata?.role;
   const avatarUrl = session?.user?.user_metadata?.avatar_url;
@@ -121,7 +132,7 @@ export default function AppLayout({ session }: { session?: any }) {
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-4 pl-2">
-            <NotificationBell userId={session?.user?.id} />
+            <NotificationBell userId={session?.user?.id} onViewDemand={onViewNotificationDemand} />
             <button
               onClick={toggleTheme}
               className="p-2 text-on-surface-variant hover:bg-surface-container-highest rounded-full transition-colors active:scale-95 duration-150"
