@@ -12,11 +12,12 @@ import ReportsView from './ReportsView';
 import ManagerDashboardView from './ManagerDashboardView';
 import TeamView from './TeamView';
 import NotificationBell from './NotificationBell';
-import { LayoutDashboard, CheckSquare, Briefcase, Ticket, LineChart, HelpCircle, LogOut, Search, Moon, Sun, Settings, Plus, User, ShieldCheck, Users } from 'lucide-react';
+import CalendarView from './CalendarView';
+import { LayoutDashboard, CheckSquare, Briefcase, Ticket, LineChart, HelpCircle, LogOut, Search, Moon, Sun, Settings, Plus, User, ShieldCheck, Users, CalendarDays } from 'lucide-react';
 
 export default function AppLayout({ session }: { session?: any }) {
   const [viewingDemand, setViewingDemand] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'painel' | 'equipe' | 'relatorios' | 'nova_demanda' | 'editar_demanda' | 'perfil' | 'gestao' | 'visualizar_demanda'>('painel');
+  const [activeTab, setActiveTab] = useState<'painel' | 'equipe' | 'relatorios' | 'nova_demanda' | 'editar_demanda' | 'perfil' | 'gestao' | 'visualizar_demanda' | 'calendario'>('painel');
   const [editingDemand, setEditingDemand] = useState<any>(null);
   const [userPrefs, setUserPrefs] = useState<any>(null);
 
@@ -104,6 +105,12 @@ export default function AppLayout({ session }: { session?: any }) {
             onClick={() => setActiveTab('painel')} 
           />
           <NavItem 
+            icon={<CalendarDays size={20} />} 
+            label="Calendário" 
+            active={activeTab === 'calendario'} 
+            onClick={() => setActiveTab('calendario')} 
+          />
+          <NavItem 
             icon={<Users size={20} />} 
             label="Equipe" 
             active={activeTab === 'equipe'} 
@@ -172,6 +179,7 @@ export default function AppLayout({ session }: { session?: any }) {
         </header>
 
         {activeTab === 'painel' && <DashboardView onEditDemand={handleEditDemand} searchQuery={searchQuery} userName={userName} currentUserId={session?.user?.id} userPrefs={userPrefs} />}
+        {activeTab === 'calendario' && <CalendarView />}
         {activeTab === 'equipe' && <TeamView currentUser={session?.user} onEditDemand={handleEditDemand} onViewDemand={handleViewDemand} searchQuery={searchQuery} />}
         {activeTab === 'gestao' && isGestor && <ManagerDashboardView onViewDemand={handleViewDemand} />}
         {activeTab === 'perfil' && <ProfileView session={session} />}
@@ -194,8 +202,9 @@ export default function AppLayout({ session }: { session?: any }) {
         )}
 
         {/* Mobile Navigation */}
-        <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-md flex justify-around items-center py-3 border-t border-slate-100 z-40">
+        <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-md flex justify-around items-center py-3 border-t border-slate-100 z-40 overflow-x-auto no-scrollbar gap-2 px-2">
           <MobileNavItem icon={<LayoutDashboard size={20} />} label="Painel" active={activeTab==='painel'} onClick={() => setActiveTab('painel')} />
+          <MobileNavItem icon={<CalendarDays size={20} />} label="Calendário" active={activeTab==='calendario'} onClick={() => setActiveTab('calendario')} />
           <MobileNavItem icon={<Users size={20} />} label="Equipe" active={activeTab==='equipe'} onClick={() => setActiveTab('equipe')} />
           {isGestor && <MobileNavItem icon={<ShieldCheck size={20} />} label="Gestão" active={activeTab==='gestao'} onClick={() => setActiveTab('gestao')} />}
           <MobileNavItem icon={<LineChart size={20} />} label="Relatórios" active={activeTab==='relatorios'} onClick={() => setActiveTab('relatorios')} />
