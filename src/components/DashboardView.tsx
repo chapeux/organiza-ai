@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDemands } from "../hooks/useDemands";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatToBrazilDate } from "../lib/utils";
 import { supabase } from "../lib/supabase";
 import CreateDemandModal from "./CreateDemandModal";
 import { Users } from "lucide-react";
@@ -128,16 +129,22 @@ export default function DashboardView({
     }
 
     if (!dateStr && demand.workflow_steps?.length > 0) {
-      const lastStep = demand.workflow_steps[0]; // order_index desc
+      const lastStep = demand.workflow_steps[demand.workflow_steps.length - 1]; // order_index asc, last
       dateStr = lastStep.estimated_date;
     }
 
     if (!dateStr) return null;
 
-    const deadline = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    deadline.setHours(0, 0, 0, 0);
+    // Use toISOString() or split and create Date without time to avoid timezone shifts
+    const [datePart] = dateStr.split('T'); 
+    const [year, month, day] = datePart.split('-').map(Number);
+    const deadline = new Date(year, month - 1, day, 12, 0, 0, 0);
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    deadline.setHours(12, 0, 0, 0);
+    today.setHours(12, 0, 0, 0);
 
     const diffTime = deadline.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -365,7 +372,7 @@ export default function DashboardView({
                         {demand.status || "Em Andamento"}
                       </div>
                       <div className="text-[10px] font-bold uppercase tracking-widest text-outline ml-1">
-                        {format(new Date(demand.created_at), "dd/MM/yyyy")}
+                        {formatToBrazilDate(demand.created_at, "dd/MM/yyyy")}
                       </div>
                       {currentUserId &&
                         demand.user_id &&

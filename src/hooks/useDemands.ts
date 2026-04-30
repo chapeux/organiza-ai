@@ -89,8 +89,8 @@ export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
       const { data: progressData } = await supabase.from('demand_progress').select('*');
       const { data: stepsData } = await supabase
         .from('workflow_steps')
-        .select('demand_id, is_completed, label, estimated_date, completed_at')
-        .order('order_index', { ascending: false });
+        .select('demand_id, is_completed, label, estimated_date, completed_at, order_index')
+        .order('order_index', { ascending: true });
 
       const enriched: Demand[] = (demandsData || []).map(d => {
         const prog = progressData?.find((p: any) => p.demand_id === d.id);
@@ -129,7 +129,7 @@ export function useDemands(typeFilter?: 'task' | 'project' | 'ticket') {
           deadlineDisplay = new Date(d.deadline).toLocaleDateString('pt-BR');
         } else if (stepsForDemand.length > 0) {
           // Última etapa (para pegar o prazo final do projeto/tarefa)
-          const lastStep = stepsForDemand[0]; // order_index desc
+          const lastStep = stepsForDemand[stepsForDemand.length - 1]; // order_index asc, last
           if (lastStep.estimated_date) {
             deadlineDisplay = new Date(lastStep.estimated_date).toLocaleDateString('pt-BR');
           }

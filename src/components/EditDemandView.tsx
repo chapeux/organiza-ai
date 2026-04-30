@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseDateString, addMonthsToDateString, addDaysToDateString } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import {
   DragDropContext,
@@ -39,7 +40,7 @@ export default function EditDemandView({
   const [location, setLocation] = useState(demand.location || "");
   const [networkPath, setNetworkPath] = useState(demand.network_path || "");
   const [deadline, setDeadline] = useState(
-    demand.deadline ? format(new Date(demand.deadline), "yyyy-MM-dd") : "",
+    demand.deadline ? demand.deadline.split('T')[0] : "",
   );
   const [recurrence, setRecurrence] = useState(demand.recurrence || "none");
   const [isPublic, setIsPublic] = useState(demand.is_public || false);
@@ -101,19 +102,19 @@ export default function EditDemandView({
   };
 
   // Helper to find latest date from steps
-  const maxStepDate = steps.reduce(
+  const maxStepDateStr = steps.reduce(
     (max, step) => {
       if (!step.estimated_date) return max;
-      const stepDate = new Date(step.estimated_date);
-      return !max || stepDate > max ? stepDate : max;
+      const stepDateStr = step.estimated_date.split('T')[0];
+      return !max || stepDateStr > max ? stepDateStr : max;
     },
-    null as Date | null,
+    null as string | null,
   );
 
   // Helper to find latest date from steps or global deadline
-  const finalDeadline = deadline ? new Date(deadline) : maxStepDate || null;
-  const formattedFinalDate = finalDeadline
-    ? format(finalDeadline, "dd MMM, yyyy", { locale: ptBR })
+  const finalDeadlineStr = deadline || maxStepDateStr;
+  const formattedFinalDate = finalDeadlineStr
+    ? format(new Date(finalDeadlineStr.replace(/-/g, '/')), "dd 'de' MMM 'de' yyyy", { locale: ptBR })
     : "Não definido";
 
   const completedStepsCount = steps.filter((s) => s.is_completed).length;
@@ -174,7 +175,7 @@ export default function EditDemandView({
           network_path: networkPath || null,
           is_public: isPublic,
           deadline:
-            deadline || (maxStepDate ? maxStepDate.toISOString() : null),
+            deadline || (maxStepDateStr ? new Date(maxStepDateStr.replace(/-/g, '/')).toISOString() : null),
           status: derivedStatus,
           progress: progressPercentage,
           recurrence,
@@ -237,13 +238,15 @@ export default function EditDemandView({
     setRenewing(true);
     try {
       // 1. Create new demand based on current one
-      const nextDeadline = maxStepDate ? new Date(maxStepDate) : new Date();
+      const nextDeadlineStr = maxStepDateStr || format(new Date(), "yyyy-MM-dd");
+      let newNextDeadlineStr = nextDeadlineStr;
+
       if (recurrence === "mensal")
-        nextDeadline.setMonth(nextDeadline.getMonth() + 1);
+        newNextDeadlineStr = addMonthsToDateString(nextDeadlineStr, 1);
       else if (recurrence === "semanal")
-        nextDeadline.setDate(nextDeadline.getDate() + 7);
+        newNextDeadlineStr = addDaysToDateString(nextDeadlineStr, 7);
       else if (recurrence === "trimestral")
-        nextDeadline.setMonth(nextDeadline.getMonth() + 3);
+        newNextDeadlineStr = addMonthsToDateString(nextDeadlineStr, 3);
 
       const newDemand = {
         title: title,
@@ -253,7 +256,7 @@ export default function EditDemandView({
         priority: demand.priority,
         status: "aberto",
         user_id: demand.user_id,
-        deadline: nextDeadline.toISOString(),
+        deadline: new Date(newNextDeadlineStr.replace(/-/g, '/')).toISOString(),
         progress: 0,
         recurrence,
       };
@@ -268,16 +271,15 @@ export default function EditDemandView({
 
       // 2. Clone workflow steps
       const newSteps = steps.map((s) => {
-        const nextEstDate = s.estimated_date
-          ? new Date(s.estimated_date)
-          : null;
-        if (nextEstDate) {
+        let nextEstDateStr = s.estimated_date ? s.estimated_date.split('T')[0] : null;
+        
+        if (nextEstDateStr) {
           if (recurrence === "mensal")
-            nextEstDate.setMonth(nextEstDate.getMonth() + 1);
+            nextEstDateStr = addMonthsToDateString(nextEstDateStr, 1);
           else if (recurrence === "semanal")
-            nextEstDate.setDate(nextEstDate.getDate() + 7);
+            nextEstDateStr = addDaysToDateString(nextEstDateStr, 7);
           else if (recurrence === "trimestral")
-            nextEstDate.setMonth(nextEstDate.getMonth() + 3);
+            nextEstDateStr = addMonthsToDateString(nextEstDateStr, 3);
         }
 
         return {
@@ -285,7 +287,7 @@ export default function EditDemandView({
           label: s.label,
           order_index: s.order_index,
           is_completed: false,
-          estimated_date: nextEstDate ? nextEstDate.toISOString() : null,
+          estimated_date: nextEstDateStr ? new Date(nextEstDateStr.replace(/-/g, '/')).toISOString() : null,
         };
       });
 
@@ -1009,10 +1011,7 @@ export default function EditDemandView({
                                           disabled={readOnly}
                                           value={
                                             step.estimated_date
-                                              ? format(
-                                                  new Date(step.estimated_date),
-                                                  "yyyy-MM-dd",
-                                                )
+                                              ? step.estimated_date.split("T")[0]
                                               : ""
                                           }
                                           onChange={async (e) => {
@@ -1024,7 +1023,7 @@ export default function EditDemandView({
                                                       ...s,
                                                       estimated_date: newDate
                                                         ? new Date(
-                                                            newDate,
+                                                            newDate.replace(/-/g, '/'),
                                                           ).toISOString()
                                                         : null,
                                                     }
@@ -1036,7 +1035,7 @@ export default function EditDemandView({
                                               .update({
                                                 estimated_date: newDate
                                                   ? new Date(
-                                                      newDate,
+                                                      newDate.replace(/-/g, '/'),
                                                     ).toISOString()
                                                   : null,
                                               })

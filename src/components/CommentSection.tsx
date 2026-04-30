@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Trash2 } from 'lucide-react';
 
 interface Comment {
   id: string;
@@ -17,8 +18,10 @@ export default function CommentSection({ demandId }: { demandId: string }) {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setCurrentUser(data.user));
     fetchComments();
     
     // Subscribe to changes
@@ -31,6 +34,14 @@ export default function CommentSection({ demandId }: { demandId: string }) {
         filter: `demand_id=eq.${demandId}`
       }, (payload) => {
         setComments(prev => [payload.new as Comment, ...prev]);
+      })
+      .on('postgres_changes', { 
+        event: 'DELETE', 
+        schema: 'public', 
+        table: 'demand_comments',
+        filter: `demand_id=eq.${demandId}`
+      }, (payload) => {
+        setComments(prev => prev.filter(c => c.id !== payload.old.id));
       })
       .subscribe();
 
@@ -75,6 +86,12 @@ export default function CommentSection({ demandId }: { demandId: string }) {
     setSubmitting(false);
   };
 
+  const handleDeleteComment = async (id: string) => {
+    if (!window.confirm("Deseja realmente excluir este comentário?")) return;
+    
+    await supabase.from('demand_comments').delete().eq('id', id);
+  };
+
   return (
     <section className="bg-surface-container-lowest rounded-xl p-6 sm:p-8 shadow-sm mt-6">
       <h3 className="font-headline font-bold text-lg mb-6 flex items-center gap-2 text-primary">
@@ -108,9 +125,20 @@ export default function CommentSection({ demandId }: { demandId: string }) {
           ) : (
             comments.map(comment => (
               <div key={comment.id} className="bg-surface-container-low p-4 rounded-lg">
-                <div className="flex justify-between text-xs text-on-surface-variant font-bold mb-2">
+                <div className="flex justify-between items-start text-xs text-on-surface-variant font-bold mb-2">
                   <span>{comment.user_email || 'Usuário'}</span>
-                  <span>{format(new Date(comment.created_at), "dd 'de' MMM, HH:mm", { locale: ptBR })}</span>
+                  <div className="flex items-center gap-2">
+                    <span>{format(new Date(comment.created_at), "dd 'de' MMM, HH:mm", { locale: ptBR })}</span>
+                    {currentUser?.id === comment.user_id && (
+                      <button 
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="text-error hover:bg-error/10 p-1 rounded-full transition-colors"
+                        title="Excluir comentário"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <p className="text-on-surface text-sm">{comment.comment}</p>
               </div>
