@@ -64,10 +64,8 @@ export default function ProfileView({ session }: { session: any }) {
   };
 
   // Derived stats
-  const activeDemands = demands.filter(d => d.status !== 'concluido').length;
-  const completedTickets = demands.filter(d => d.type === 'ticket' && d.status === 'concluido').length;
-  const totalProjects = demands.filter(d => d.type === 'project').length;
-  const totalDeliveries = demands.filter(d => d.status === 'concluido').length;
+  const activeDemands = demands.filter(d => d.status !== 'concluido' && d.status !== 'concluído').length;
+  const closedDemands = demands.filter(d => d.status === 'concluido' || d.status === 'concluído').length;
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
@@ -163,20 +161,13 @@ export default function ProfileView({ session }: { session: any }) {
           <p className="text-on-surface-variant text-sm mt-1">Gerencie suas informações e preferências do sistema WEG Synergy.</p>
         </div>
           <div className="flex gap-3">
-          <button 
-            onClick={handleSaveProfile}
-            disabled={isSaving}
-            className="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2"
-          >
-            {isSaving && <Loader2 size={16} className="animate-spin" />}
-            Salvar Alterações
-          </button>
+          {/* Removed individual save buttons */}
         </div>
       </header>
 
       <div className="grid grid-cols-12 gap-6">
         {/* Profile Hero Card */}
-        <section className="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden">
+        <section className="col-span-12 bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16"></div>
           <div className="relative group shrink-0">
             <div className="w-32 h-32 rounded-full border-4 border-surface-container-low shadow-md bg-primary-container text-on-primary-container flex items-center justify-center text-5xl font-bold uppercase overflow-hidden relative">
@@ -206,7 +197,7 @@ export default function ProfileView({ session }: { session: any }) {
           
           <div className="flex-1 w-full">
             <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h3 className="font-headline text-2xl font-bold text-primary">{fullName || 'Usuário'}</h3>
+              <h3 className="font-headline text-2xl font-bold text-primary whitespace-nowrap">{fullName || 'Usuário'}</h3>
               <span className="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase tracking-wider">Verificado</span>
             </div>
             
@@ -230,37 +221,14 @@ export default function ProfileView({ session }: { session: any }) {
             )}
           </div>
           
-          <div className="flex gap-4 self-start md:self-center md:border-l border-surface-container-high md:pl-8 mt-4 md:mt-0">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{totalProjects}</p>
-              <p className="text-[10px] text-on-surface-variant uppercase font-bold">Projetos</p>
+          <div className="flex gap-6 mt-4 md:mt-0 md:ml-auto">
+            <div className="bg-surface-container rounded-lg p-4 text-center border border-outline-variant/30 flex-1 flex flex-col items-center justify-center">
+              <p className="text-2xl font-bold text-primary">{activeDemands}</p>
+              <p className="text-[11px] text-on-surface-variant uppercase font-bold whitespace-nowrap">Abertas</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{totalDeliveries}</p>
-              <p className="text-[10px] text-on-surface-variant uppercase font-bold">Entregas</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Quick Stats Card */}
-        <section className="col-span-12 lg:col-span-4 bg-gradient-to-br from-primary to-primary-container rounded-xl p-6 text-on-primary flex flex-col justify-center shadow-xl">
-          <div>
-            <h4 className="font-headline font-bold text-lg mb-4">Estatísticas de Atividade</h4>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center bg-white/10 p-3 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <LayoutDashboard size={20} />
-                  <span className="text-sm font-medium">Demandas Ativas</span>
-                </div>
-                <span className="text-xl font-bold">{activeDemands.toString().padStart(2, '0')}</span>
-              </div>
-              <div className="flex justify-between items-center bg-white/10 p-3 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <CheckSquare size={20} />
-                  <span className="text-sm font-medium">Tickets Concluídos</span>
-                </div>
-                <span className="text-xl font-bold">{completedTickets.toString().padStart(2, '0')}</span>
-              </div>
+            <div className="bg-surface-container rounded-lg p-4 text-center border border-outline-variant/30 flex-1 flex flex-col items-center justify-center">
+              <p className="text-2xl font-bold text-primary">{closedDemands}</p>
+              <p className="text-[11px] text-on-surface-variant uppercase font-bold whitespace-nowrap">Encerradas</p>
             </div>
           </div>
         </section>
@@ -406,18 +374,24 @@ export default function ProfileView({ session }: { session: any }) {
                   </select>
                 </div>
               </div>
-              <div className="mt-6 flex justify-end">
-                <button 
-                  onClick={handleSavePreferences}
-                  disabled={isSavingPreferences}
-                  className="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2"
-                >
-                  {isSavingPreferences && <Loader2 size={16} className="animate-spin" />}
-                  Salvar Preferências
-                </button>
-              </div>
             </section>
-          </div>
+            
+            {/* Floating Save Button */}
+            <div className="fixed bottom-8 right-8 z-50">
+              <button 
+                onClick={async () => {
+                    await handleSaveProfile();
+                    await handleSavePreferences();
+                }}
+                disabled={isSaving || isSavingPreferences}
+                className="px-6 py-4 rounded-full bg-primary text-on-primary font-bold text-sm shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-2"
+              >
+                {(isSaving || isSavingPreferences) && <Loader2 size={20} className="animate-spin" />}
+                Salvar Tudo
+              </button>
+            </div>
+            {/* End of Section Preferences */}
         </div>
+      </div>
   );
 }
