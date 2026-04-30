@@ -20,6 +20,49 @@ export default function ProfileView({ session }: { session: any }) {
   const [newPassword, setNewPassword] = useState('');
   const [isEditingPassword, setIsEditingPassword] = useState(false);
 
+  // User Preferences State
+  const [defaultView, setDefaultView] = useState<'list' | 'cards'>('cards');
+  const [defaultFilter, setDefaultFilter] = useState('todos');
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+
+  // Fetch preferences
+  React.useEffect(() => {
+    async function fetchPreferences() {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', session?.user?.id)
+        .maybeSingle();
+      
+      if (data) {
+        setDefaultView(data.default_view);
+        setDefaultFilter(data.default_filter);
+      }
+    }
+    fetchPreferences();
+  }, [session?.user?.id]);
+  
+  // Save preferences
+  const handleSavePreferences = async () => {
+    setIsSavingPreferences(true);
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: session?.user?.id,
+          default_view: defaultView,
+          default_filter: defaultFilter,
+          updated_at: new Date().toISOString()
+        });
+      if (error) throw error;
+      alert('Preferências salvas!');
+    } catch (error: any) {
+      alert('Erro ao salvar preferências: ' + error.message);
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
+
   // Derived stats
   const activeDemands = demands.filter(d => d.status !== 'concluido').length;
   const completedTickets = demands.filter(d => d.type === 'ticket' && d.status === 'concluido').length;
@@ -331,9 +374,50 @@ export default function ProfileView({ session }: { session: any }) {
               )}
             </div>
 
+            </div>
+            </section>
+            
+            {/* Preferences Section */}
+            <section className="col-span-12 bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <h4 className="font-headline font-bold text-lg text-primary mb-6">Preferências do Sistema</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-on-surface">Visualização Padrão</label>
+                  <select 
+                    value={defaultView}
+                    onChange={(e) => setDefaultView(e.target.value as 'list' | 'cards')}
+                    className="w-full p-2.5 bg-surface-container border border-outline-variant/30 rounded-md text-sm"
+                  >
+                    <option value="cards">Cards</option>
+                    <option value="list">Lista</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-on-surface">Filtro de Painel Padrão</label>
+                  <select 
+                    value={defaultFilter}
+                    onChange={(e) => setDefaultFilter(e.target.value)}
+                    className="w-full p-2.5 bg-surface-container border border-outline-variant/30 rounded-md text-sm"
+                  >
+                    <option value="todos">Todos</option>
+                    <option value="aberto">Abertos</option>
+                    <option value="em_andamento">Em Andamento</option>
+                    <option value="concluido">Concluídos</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button 
+                  onClick={handleSavePreferences}
+                  disabled={isSavingPreferences}
+                  className="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2"
+                >
+                  {isSavingPreferences && <Loader2 size={16} className="animate-spin" />}
+                  Salvar Preferências
+                </button>
+              </div>
+            </section>
           </div>
-        </section>
-      </div>
-    </div>
+        </div>
   );
 }
