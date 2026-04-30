@@ -179,7 +179,7 @@ export default function AppLayout({ session }: { session?: any }) {
         </header>
 
         {activeTab === 'painel' && <DashboardView onEditDemand={handleEditDemand} searchQuery={searchQuery} userName={userName} currentUserId={session?.user?.id} userPrefs={userPrefs} />}
-        {activeTab === 'calendario' && <CalendarView />}
+        {activeTab === 'calendario' && <CalendarView onViewDemand={handleViewDemand} currentUserId={session?.user?.id} />}
         {activeTab === 'equipe' && <TeamView currentUser={session?.user} onEditDemand={handleEditDemand} onViewDemand={handleViewDemand} searchQuery={searchQuery} />}
         {activeTab === 'gestao' && isGestor && <ManagerDashboardView onViewDemand={handleViewDemand} />}
         {activeTab === 'perfil' && <ProfileView session={session} />}
