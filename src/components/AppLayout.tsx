@@ -18,12 +18,27 @@ export default function AppLayout({ session }: { session?: any }) {
   const [viewingDemand, setViewingDemand] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'painel' | 'equipe' | 'relatorios' | 'nova_demanda' | 'editar_demanda' | 'perfil' | 'gestao' | 'visualizar_demanda'>('painel');
   const [editingDemand, setEditingDemand] = useState<any>(null);
+  const [userPrefs, setUserPrefs] = useState<any>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('weg-theme') === 'dark';
   });
+
+  useEffect(() => {
+    async function fetchPreferences() {
+      if(session?.user?.id) {
+        const { data } = await supabase
+          .from('user_preferences')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        setUserPrefs(data);
+      }
+    }
+    fetchPreferences();
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -156,7 +171,7 @@ export default function AppLayout({ session }: { session?: any }) {
           </div>
         </header>
 
-        {activeTab === 'painel' && <DashboardView onEditDemand={handleEditDemand} searchQuery={searchQuery} userName={userName} currentUserId={session?.user?.id} />}
+        {activeTab === 'painel' && <DashboardView onEditDemand={handleEditDemand} searchQuery={searchQuery} userName={userName} currentUserId={session?.user?.id} userPrefs={userPrefs} />}
         {activeTab === 'equipe' && <TeamView currentUser={session?.user} onEditDemand={handleEditDemand} onViewDemand={handleViewDemand} searchQuery={searchQuery} />}
         {activeTab === 'gestao' && isGestor && <ManagerDashboardView onViewDemand={handleViewDemand} />}
         {activeTab === 'perfil' && <ProfileView session={session} />}

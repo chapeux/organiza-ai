@@ -12,22 +12,31 @@ export default function DashboardView({
   searchQuery = "",
   userName,
   currentUserId,
+  userPrefs,
 }: {
   onEditDemand?: (demand: any) => void;
   searchQuery?: string;
   userName?: string;
   currentUserId?: string;
+  userPrefs?: any;
 }) {
   const { demands, loading, hasSupabase, refresh } = useDemands();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"open" | "all">("open");
+  const [filter, setFilter] = useState<"open" | "all">(userPrefs?.default_filter === 'concluido' || userPrefs?.default_filter === 'todos' ? "all" : "open");
   const [typeFilter, setTypeFilter] = useState<
     "all" | "project" | "task" | "ticket"
   >("all");
-  const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
+  const [viewMode, setViewMode] = useState<"cards" | "list">(userPrefs?.default_view || "cards");
   const [sortBy, setSortBy] = useState<
     "name" | "progress" | "completion" | "type" | "deadline"
   >("deadline");
+
+  useEffect(() => {
+    if (userPrefs) {
+      setViewMode(userPrefs.default_view || "cards");
+      setFilter(userPrefs.default_filter === 'concluido' || userPrefs.default_filter === 'todos' ? "all" : "open");
+    }
+  }, [userPrefs]);
 
   const handleEditClick = (demand: any, e: React.MouseEvent) => {
     e.stopPropagation();
