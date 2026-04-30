@@ -9,8 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatToBrazilDate(date: Date | string, formatStr: string = "dd/MM/yyyy") {
-  // Fix: explicitly handle the string-as-UTC to avoid local timezone shift
-  const dateObj = typeof date === 'string' ? new Date(date.replace('Z', '')) : date;
+  const dateObj = typeof date === 'string' ? (parseDateString(date) || new Date(date)) : date;
   return formatInTimeZone(dateObj, "America/Sao_Paulo", formatStr, { locale: ptBR })
 }
 

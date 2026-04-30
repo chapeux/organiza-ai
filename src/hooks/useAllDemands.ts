@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Demand } from './useDemands';
+import { formatToBrazilDate } from '../lib/utils';
 
 export function useAllDemands() {
   const [demands, setDemands] = useState<Demand[]>([]);
@@ -61,12 +62,12 @@ export function useAllDemands() {
         // Define prazo: prioriza o campo manual, senão usa a última etapa do workflow
         let deadlineDisplay = 'Sem prazo definido';
         if (d.deadline) {
-          deadlineDisplay = new Date(d.deadline).toLocaleDateString('pt-BR');
+          deadlineDisplay = formatToBrazilDate(d.deadline);
         } else if (stepsForDemand.length > 0) {
           // Última etapa (ordem decrescente)
           const lastStep = stepsForDemand[0];
           deadlineDisplay = lastStep.estimated_date 
-            ? new Date(lastStep.estimated_date).toLocaleDateString('pt-BR') 
+            ? formatToBrazilDate(lastStep.estimated_date) 
             : 'Sem data definida';
         }
 
