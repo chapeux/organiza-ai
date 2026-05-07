@@ -12,6 +12,7 @@ import {
 } from "@hello-pangea/dnd";
 import CommentSection from "./CommentSection";
 
+
 interface EditDemandViewProps {
   key?: React.Key;
   demand: any;
@@ -114,7 +115,7 @@ export default function EditDemandView({
   // Helper to find latest date from steps or global deadline
   const finalDeadlineStr = deadline || maxStepDateStr;
   const formattedFinalDate = finalDeadlineStr
-    ? format(new Date(finalDeadlineStr.replace(/-/g, '/')), "dd 'de' MMM 'de' yyyy", { locale: ptBR })
+    ? format(parseDateString(finalDeadlineStr) || new Date(), "dd 'de' MMM 'de' yyyy", { locale: ptBR })
     : "Não definido";
 
   const completedStepsCount = steps.filter((s) => s.is_completed).length;
@@ -175,7 +176,7 @@ export default function EditDemandView({
           network_path: networkPath || null,
           is_public: isPublic,
           deadline:
-            deadline || (maxStepDateStr ? new Date(maxStepDateStr.replace(/-/g, '/')).toISOString() : null),
+            deadline || (maxStepDateStr ? parseDateString(maxStepDateStr)?.toISOString() : null),
           status: derivedStatus,
           progress: progressPercentage,
           recurrence,
@@ -256,7 +257,7 @@ export default function EditDemandView({
         priority: demand.priority,
         status: "aberto",
         user_id: demand.user_id,
-        deadline: new Date(newNextDeadlineStr.replace(/-/g, '/')).toISOString(),
+        deadline: parseDateString(newNextDeadlineStr)?.toISOString() || new Date().toISOString(),
         progress: 0,
         recurrence,
       };
@@ -287,7 +288,7 @@ export default function EditDemandView({
           label: s.label,
           order_index: s.order_index,
           is_completed: false,
-          estimated_date: nextEstDateStr ? new Date(nextEstDateStr.replace(/-/g, '/')).toISOString() : null,
+          estimated_date: nextEstDateStr ? parseDateString(nextEstDateStr)?.toISOString() : null,
         };
       });
 
