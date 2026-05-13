@@ -132,7 +132,6 @@ export default function AppLayout({ session }: { session?: any }) {
           )}
         </nav>
         <div className="mt-auto px-3 space-y-1 pt-6 border-t border-outline-variant/20">
-          <NavItem icon={<HelpCircle size={20} />} label="Ajuda" />
           <NavItem onClick={handleLogout} icon={<LogOut size={20} />} label="Sair" className="!text-error" />
         </div>
       </aside>
