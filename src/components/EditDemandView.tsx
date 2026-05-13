@@ -509,58 +509,6 @@ export default function EditDemandView({
                 <span className="hidden sm:inline">Excluir</span>
               </button>
             )}
-
-            {!readOnly && (
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={handleSave}
-                disabled={saving || saveSuccess}
-                className={`px-6 py-2.5 rounded-lg font-headline font-bold text-sm shadow-lg transition-all disabled:opacity-70 flex items-center justify-center min-w-[120px] gap-2 ${
-                  saveSuccess
-                    ? "bg-green-600 text-white"
-                    : "bg-primary text-on-primary hover:opacity-90"
-                }`}
-              >
-                <AnimatePresence mode="wait">
-                  {saveSuccess ? (
-                    <motion.div
-                      key="success"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-lg">
-                        check_circle
-                      </span>
-                      Salvo
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="default"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2 whitespace-nowrap"
-                    >
-                      {saving ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          Salvando...
-                        </>
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined text-lg">
-                            save
-                          </span>
-                          Salvar
-                        </>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            )}
           </div>
         </div>
 
@@ -1146,6 +1094,59 @@ export default function EditDemandView({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Floating Save Button */}
+      {!readOnly && (
+        <div className="fixed bottom-8 right-8 z-[60]">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            onClick={handleSave}
+            disabled={saving || saveSuccess}
+            className={`flex items-center gap-2 px-6 py-4 rounded-2xl font-headline font-bold shadow-2xl transition-all disabled:opacity-70 min-w-[140px] justify-center ${
+              saveSuccess
+                ? "bg-green-600 text-white"
+                : "bg-blue-600 text-white hover:brightness-110"
+            }`}
+          >
+            <AnimatePresence mode="wait">
+              {saveSuccess ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined font-bold">check_circle</span>
+                  <span>Salvo</span>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="default"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center gap-2"
+                >
+                  {saving ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Salvando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined font-bold">save</span>
+                      <span>Salvar Alterações</span>
+                    </>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
+      )}
     </div>
   );
 }
