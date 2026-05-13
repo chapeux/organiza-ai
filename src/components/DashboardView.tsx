@@ -28,7 +28,7 @@ export default function DashboardView({
   >("all");
   const [viewMode, setViewMode] = useState<"cards" | "list">(userPrefs?.default_view || "cards");
   const [sortBy, setSortBy] = useState<
-    "name" | "progress" | "completion" | "type" | "deadline"
+    "name" | "progress" | "completion" | "type" | "deadline" | "created"
   >("deadline");
 
   useEffect(() => {
@@ -209,6 +209,10 @@ export default function DashboardView({
             ? new Date(b.currentStep.estimated_date).getTime()
             : Infinity;
         return deadlineA - deadlineB;
+      case "created":
+        const createdA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const createdB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return createdB - createdA;
       case "type":
         return (a.type || "").localeCompare(b.type || "");
       case "name":
@@ -220,7 +224,7 @@ export default function DashboardView({
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 w-full">
       {/* Welcome Section */}
-      <section className="mb-10">
+      <section className="mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h2 className="text-3xl font-extrabold text-primary tracking-tight mb-1 font-headline">
@@ -276,6 +280,7 @@ export default function DashboardView({
                 <option value="progress">Progresso</option>
                 <option value="deadline">Prazo</option>
                 <option value="completion">Conclusão</option>
+                <option value="created">Criado</option>
                 <option value="type">Tipo</option>
               </select>
               <select

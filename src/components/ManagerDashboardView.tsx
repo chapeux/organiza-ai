@@ -7,7 +7,7 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
   const [filterTitle, setFilterTitle] = React.useState('');
   const [filterEmail, setFilterEmail] = React.useState('');
   const [filterStatus, setFilterStatus] = React.useState('todos');
-  const [sortBy, setSortBy] = React.useState<'name' | 'progress' | 'completion' | 'type' | 'deadline'>('deadline');
+  const [sortBy, setSortBy] = React.useState<'name' | 'progress' | 'completion' | 'type' | 'deadline' | 'created'>('deadline');
 
   const getDeadlineStatus = (demand: any) => {
     if (demand.status === 'concluido' || demand.status === 'concluído') return null;
@@ -55,6 +55,10 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
             const deadlineA = a.deadline ? new Date(a.deadline).getTime() : (a.currentStep?.estimated_date ? new Date(a.currentStep.estimated_date).getTime() : Infinity);
             const deadlineB = b.deadline ? new Date(b.deadline).getTime() : (b.currentStep?.estimated_date ? new Date(b.currentStep.estimated_date).getTime() : Infinity);
             return deadlineA - deadlineB;
+        case 'created':
+            const createdA = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const createdB = b.created_at ? new Date(b.created_at).getTime() : 0;
+            return createdB - createdA;
         case 'type':
             return (a.type || '').localeCompare(b.type || '');
         case 'name':
@@ -121,6 +125,7 @@ export default function ManagerDashboardView({ onViewDemand }: { onViewDemand: (
                 <option value="progress" className="bg-surface-container-lowest">Ordenar por Progresso</option>
                 <option value="deadline" className="bg-surface-container-lowest">Ordenar por Prazo</option>
                 <option value="completion" className="bg-surface-container-lowest">Ordenar por Conclusão</option>
+                <option value="created" className="bg-surface-container-lowest">Ordenar por Criação</option>
                 <option value="type" className="bg-surface-container-lowest">Ordenar por Tipo</option>
             </select>
         </div>
